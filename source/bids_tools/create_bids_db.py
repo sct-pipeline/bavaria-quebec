@@ -8,6 +8,8 @@ from pathlib import Path
 from tqdm import tqdm
 import shutil
 
+from bids_templates import get_dataset_description
+
 parser = argparse.ArgumentParser(description='BIDSify the MS brain database.')
 parser.add_argument('-i','--input_directory', help='Folder of top directory non-bids database.', required=True)
 parser.add_argument('-d','--dataset_description', help='Provide pandas csv of database.')
@@ -45,48 +47,6 @@ except OSError as exc:
     print("Failed creating the top directory of BIDS datastructure.")
     pass
 
-# @TODO: create extensive dataset description
-#  https://bids-specification.readthedocs.io/en/stable/03-modality-agnostic-files.html
-
-dataset={
-  "Name": "TUMNIC-MS_SpinalCord_Dataset",
-  "BIDSVersion": "1.7.0",
-  "DatasetType": "raw",
-  "License": "CC0",
-  "Authors": [
-    "Mark Muehlau",
-    "Jan Kirschke",
-    "Julian McGinnis",
-  ],
-  "Acknowledgements": "",
-  "HowToAcknowledge": "",
-  "Funding": [
-    "",
-    ""
-  ],
-  "EthicsApprovals": [
-    ""
-  ],
-  "ReferencesAndLinks": [
-    "",
-    ""
-  ],
-  "DatasetDOI": "",
-  "HEDVersion": "",
-  "GeneratedBy": [
-    {
-      "Name": "jqmcginnis",
-      "Version": "0.0.1",
-    }
-  ],
-  "SourceDatasets": [
-    {
-      "URL": "https://aim-lab.io/",
-      "Version": "June 29 2022"
-    }
-  ]
-}
-
 # read information from csv
 
 dataset_description = pd.read_csv(args.dataset_description)
@@ -114,7 +74,7 @@ for index, row in dataset_description.iterrows():
     id = row["SubjectID"]
     session_date = row["SessionDate"]
     ornt = row["ornt"]
-    chunk_nr = row["partName"]
+    chunk_nr = row["chunkID"]
 
     img_path = row["ImgPath"]
     json_path = img_path.replace("nii.gz","json")
@@ -136,7 +96,7 @@ for index, row in dataset_description.iterrows():
 
 
 # Serializing json
-json_object = json.dumps(dataset, indent=4)
+json_object = json.dumps(get_dataset_description(), indent=4)
 # write to dataset description
 with open(os.path.join(bids_database_path,"dataset_description.json"), "w") as outfile:
     outfile.write(json_object)
