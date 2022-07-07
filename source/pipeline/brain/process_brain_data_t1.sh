@@ -96,9 +96,6 @@ segment_if_does_not_exist() {
 # Retrieve input params
 SUBJECTSESSION=$1
 echo $SUBJECTSESSION
-# IFS=/ read SUBJECT SESSION <<< $1
-# echo "$SUBJECT"
-# echo "$SESSION"
 
 # get starting time:
 start=`date +%s`
