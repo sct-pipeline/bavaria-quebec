@@ -52,8 +52,6 @@ label_if_does_not_exist(){
   else
     echo "Not found. Proceeding with automatic labeling."
     # Generate labeled segmentation
-    sct_image -i ${file}.nii.gz -set-sform-to-qform
-    sct_image -i ${file_seg}.nii.gz -set-sform-to-qform
     sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1 -qc "${PATH_QC}" -qc-subject "${SUBJECTSESSION}"
   fi
 }
@@ -114,6 +112,10 @@ file="${SUBJECTSESSION//[\/]/_}"
 # T1w
 # ======================================================================================================================
 file_t1w="${file}_T1w"
+
+# Make sure q/sform are the same
+sct_image -i ${file_t1w}.nii.gz -set-sform-to-qform
+
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist "${file_t1w}" "t1"
 file_t1w_seg="${FILESEG}"
