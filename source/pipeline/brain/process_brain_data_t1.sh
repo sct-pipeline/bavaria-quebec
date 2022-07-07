@@ -45,7 +45,7 @@ label_if_does_not_exist() {
   local file="$1"
   local file_seg="$2"
   # Update global variable with segmentation file name
-  FILELABEL="${file}_seg_labeled"
+  FILELABEL="${file}_labels"
   FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECTSESSION}/anat/${FILELABEL}-manual.nii.gz"
   echo "Looking for manual label: $FILELABELMANUAL"
   if [[ -e $FILELABELMANUAL ]]; then
@@ -60,8 +60,8 @@ label_if_does_not_exist() {
     sct_image -i ${file}.nii.gz -set-sform-to-qform
     sct_image -i ${file_seg}.nii.gz -set-sform-to-qform
     sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1 -qc "${PATH_QC}" -qc-subject "${SUBJECTSESSION}"
-    # Create labels in the cord at C3 and C5 mid-vertebral levels
-    # sct_label_utils -i ${file_seg}_labeled.nii.gz -vert-body 3,5 -o ${FILELABEL}.nii.gz
+    # Create labels in the cord at C2 and C3 mid-vertebral levels
+    sct_label_utils -i ${file_seg}_labeled.nii.gz -vert-body 2,3 -o ${FILELABEL}.nii.gz
   fi
 }
 
