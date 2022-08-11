@@ -1,23 +1,23 @@
-#### Cooperation between NeuroPoly (Polytechnique Montreal,Quebec) and TUM (Munich, Bavaria)
+## Cooperation between NeuroPoly (Polytechnique Montreal,Quebec) and TUM (Munich, Bavaria)
 
 This project aims to investigate both brain and spine MRI scans for Multiple Sclerosis Research. 
 
 Note:
-```
-As all studied data are kept privately, this repository does not (and should not) feature patient-related data and/or scans. These are shared in a privacy-preserving manner between the NeuroPoly and TUM labs.
-```
 
-# Table of contents 
-* [Data collection and organization](#data-collection-and-organization)
-    * [Background Information](#background-information)
-    * [Brain Dataset] (#brain-dataset)
-    * [Spinal Cord Dataset] (#spinal-cord-dataset)
-* [Analysis pipeline](#analysis-pipeline)
-    * [General Information] (#general-information)
-    * [Preprocessing](#preprocessing)
-    * [Processing](#processing)
-    * [Quality control](#quality-control)
-    
+As all studied data are kept privately, this repository does not (and should not) feature patient-related data and/or scans. These are shared in a privacy-preserving manner between the NeuroPoly and TUM labs.
+
+## Table of Contents
+
+- [Data collection and organization](#data-collection-and-organization)
+  * [Background Information](#background-information)
+  * [Brain Dataset](#brain-dataset)
+  * [Spinal Cord Dataset](#spinal-cord-dataset)
+- [Analysis Pipeline](#analysis-pipeline)
+  * [General Information](#general-information)
+  * [Preprocessing](#preprocessing)
+  * [Processing](#processing)
+  * [Quality Check](#quality-check)
+
 - - -
 
 ## Data collection and organization
@@ -145,9 +145,7 @@ The newly generated, BIDS compliant database adheres to the following structure:
         └── sub-123456_ses-20220202_scans.tsv
 ```
 
-
-
-## Analysis Pipeline.
+## Analysis Pipeline
 ### General Information
 
 Pipeline scripts can be found in [directory] (https://github.com/sct-pipeline/bavaria-quebec/tree/main/source/pipeline).
