@@ -24,7 +24,7 @@ start=`date +%s`
 
 echo "Swaping Dimensions"
 fslswapdim ${SCAN} LR AP IS ${FILE_PATH}
-echo "Forcing neuological orientation"
+echo "Forcing neurological orientation"
 fslorient -forceneurological ${FILE_PATH}
 
 # Display useful info for the log
