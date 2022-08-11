@@ -1,39 +1,37 @@
-### Artificial intelligence for an integrative approach to analyze the brain and spinal cord in multiple sclerosis
-### Cooperation between NeuroPoly (Polytechnique Montreal,Quebec) and TUM (Munich, Bavaria)
+#### Cooperation between NeuroPoly (Polytechnique Montreal,Quebec) and TUM (Munich, Bavaria)
 
-This project investigates both brain and spine MRI scans for Multiple Sclerosis Research, with a focus on spinal cord lesion detection.
+This project aims to investigate both brain and spine MRI scans for Multiple Sclerosis Research. 
 
-### Notes:
-
+Note:
 ```
 As all studied data are kept privately, this repository does not (and should not) feature patient-related data and/or scans. These are shared in a privacy-preserving manner between the NeuroPoly and TUM labs.
 ```
 
-### Usage of the repository
+# Table of contents 
+* [Data collection and organization](#data-collection-and-organization)
+    * [Background Information](#background-information)
+    * [Brain Dataset] (#brain-dataset)
+    * [Spinal Cord Dataset] (#spinal-cord-dataset)
+* [Analysis pipeline](#analysis-pipeline)
+    * [General Information] (#general-information)
+    * [Preprocessing](#preprocessing)
+    * [Processing](#processing)
+    * [Quality control](#quality-control)
+    
+- - -
+
+## Data collection and organization
+### Background Information 
 
 In this project, we use the [Spinal Cord Toolbox] (https://github.com/spinalcordtoolbox/spinalcordtoolbox) to analyze both, brain and spinal cord for multiple sclerosis research questions.
 The MS brain database has been curated by various PhD students of the lab at TUM and various pipelines, such as CAT12, LST and Freesurfer have been employed to analyze the data.
 Similarly, this project aims to create a spinal cord database to provide the possibility of large-scale analysis of spinal cord lesions, and the joined analysis with the brain.
 
-Pipeline scripts can be found in [directory] (https://github.com/sct-pipeline/bavaria-quebec/tree/main/source/pipeline).
+### Brain Dataset
 
-#### SCT on Brain DB
+The brain database has been curated by various PhD students at the TUM lab, and adheres to the BIDS convention. It consists of T1w, T2w, Flair Scans of the brain, scanned with isotropic resolution.
 
-To use SCT on a BIDS compliant brain database (i.e. on the cervical spine regions), we implemented a bash-based multi-subject script for the entire workflow in SCT.
-
-Currently, it consists of the following steps:
-
-1. Segmentation of spinal cord
-2. Labeling of vertebrae
-3. Computation of CSA in cervical spine
-
-Link to [scripts](https://github.com/sct-pipeline/bavaria-quebec/tree/main/source/pipeline/brain/).
-
-#### SCT on Spinal Cord DB
-
-As the dataset curation and pre-processing has not been completely implemented, this section will be detailed once the scripts are available.
-
-### Dataset Curation for Spinal Cord DB
+### Spinal Cord Dataset 
 
 In contrast to the brain database, the imaging of spinal cord is much more complex, and requires a more sophisticated protocol.
 
@@ -148,7 +146,13 @@ The newly generated, BIDS compliant database adheres to the following structure:
 ```
 
 
-#### Preprocessing and Stitching
+
+## Analysis Pipeline.
+### General Information
+
+Pipeline scripts can be found in [directory] (https://github.com/sct-pipeline/bavaria-quebec/tree/main/source/pipeline).
+
+### Preprocessing
 
 To use SCT's capabilities w.r.t. statistical analysis and registration to the PAM50 template, it is necessary to stitch the axial and sagittal slices to whole-spine images.
 
@@ -163,7 +167,23 @@ Y axis orientation:   anterior to posterior
 Z axis orientation:   inferior to superior
 ```
 
+### Processing
 
+To use SCT on a BIDS compliant brain database (i.e. on the cervical spine regions), we implemented a bash-based multi-subject script for the entire workflow in SCT.
+
+Currently, it consists of the following steps:
+
+1. Segmentation of spinal cord
+2. Labeling of vertebrae
+3. Computation of CSA in cervical spine
+
+Link to [scripts](https://github.com/sct-pipeline/bavaria-quebec/tree/main/source/pipeline/brain/).
+
+### Quality Check
+
+To run the quality check w.r.t. SCT's results, please launch the `index.html` in the qc folder of the processed scans. 
+
+The quality check will be detailed once examples are readily available.
 
 
 
