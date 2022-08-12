@@ -64,7 +64,7 @@ def resample_itk(im, desired_spacing, interp_type):
     im_resampled = resampler.Execute(im)
     return im_resampled
 
-def convert_path_to_sitk_img(img_path):
+def convert_path_to_sitk_img(img_path, resample=False):
     """
     :param img_path: path to image
     :return: sitk-image
@@ -72,9 +72,12 @@ def convert_path_to_sitk_img(img_path):
     sitk_img = sitk.ReadImage(img_path)
     # cast images to sitk Float
     sitk_img = sitk.Cast(sitk_img, sitk.sitkFloat32)
+    
+    if resample:
 
-    # resample the images to obtain a resolution of 0.5, 0.5, 0.5 using the linear filter
-    sitk_img = resample_itk(sitk_img, [0.5, 0.5, 0.5], sampling_method)
+        # resample the images to obtain a resolution of 0.5, 0.5, 0.5 using the linear filter
+        sitk_img = resample_itk(sitk_img, [0.5, 0.5, 0.5], sampling_method)
+
     padf = sitk.ConstantPadImageFilter()
     padf.SetConstant(0)
     padf.SetPadLowerBound((10, 20, 80))
@@ -128,6 +131,7 @@ parser.add_argument('-o', '--output_directory', help='Directory to store the res
 parser.add_argument('-f', '--file_name', type=str, help='Filename of histgram including filename ending.', default="stitched.nii.gz")
 parser.add_argument('-s','--sampling_method', type=str, help='Sampling strategy for interpolation.', default='linear')
 parser.add_argument('-ornt','--orientation', type=str, help='Specify the orientation for the snapshot.', default='sag')
+parser.add_argument('--resample', default=False, action='store_true')
 
 # parse variables
 args = parser.parse_args()
@@ -136,10 +140,20 @@ assert len(img_paths) >= 2, "Please provide 2 or more image stacks"
 sampling_method = args.sampling_method
 output_dir = args.output_directory
 file_name = args.file_name
+resample_flag = bool(args.resample)
+
+# without resampling
+sitk_img_1 = sitk.ReadImage(img_paths[0])
+sitk_img_2 = sitk.ReadImage(img_paths[1])
+# cast images to sitk Float
+sitk_img_1 = sitk.Cast(sitk_img_1, sitk.sitkFloat32)
+sitk_img_2 = sitk.Cast(sitk_img_2, sitk.sitkFloat32)
+
+res_img = stitch_image(sitk_img_1, sitk_img_2)
 
 # cast images to sitk Float
-sitk_img1 = convert_path_to_sitk_img(img_paths[0])
-sitk_img2 = convert_path_to_sitk_img(img_paths[1])
+sitk_img1 = convert_path_to_sitk_img(img_paths[0],resample_flag)
+sitk_img2 = convert_path_to_sitk_img(img_paths[1],resample_flag)
 
 res_img = stitch_image(sitk_img1, sitk_img2)
 # helper vars
