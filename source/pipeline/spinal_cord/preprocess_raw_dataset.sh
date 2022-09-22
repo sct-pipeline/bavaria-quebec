@@ -9,7 +9,7 @@
 # Example:
 #   ./process_data.sh sub-03
 #
-# Author: Julien Cohen-Adad
+# Author: Julian McGinnis
 
 # The following global variables are retrieved from the caller sct_run_batch
 # but could be overwritten by uncommenting the lines below:
@@ -30,56 +30,6 @@ set -e
 
 # Exit if user presses CTRL+C (Linux) or CMD+C (OSX)
 trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
-
-
-# CONVENIENCE FUNCTIONS
-# ======================================================================================================================
-
-# Check if manual label already exists. If it does, copy it locally. If it does
-# not, perform labeling.
-label_if_does_not_exist(){
-  local file="$1"
-  local file_seg="$2"
-  # Update global variable with segmentation file name
-  FILELABEL="${file}_labels-disc"
-  FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECTSESSION}/anat/${FILELABEL}-manual.nii.gz"
-  echo "Looking for manual label: $FILELABELMANUAL"
-  if [[ -e $FILELABELMANUAL ]]; then
-    echo "Found! Using manual labels."
-    rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
-    # Generate labeled segmentation from manual disc labels
-    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -discfile ${FILELABEL}.nii.gz -c t1 -qc "${PATH_QC}" -qc-subject "${SUBJECTSESSION}"
-  else
-    echo "Not found. Proceeding with automatic labeling."
-    # Generate labeled segmentation
-    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1 -qc "${PATH_QC}" -qc-subject "${SUBJECTSESSION}"
-  fi
-}
-
-segment_if_does_not_exist() {
-  ###
-  #  This function checks if a manual spinal cord segmentation file already exists, then:
-  #    - If it does, copy it locally.
-  #    - If it doesn't, perform automatic spinal cord segmentation.
-  #  This allows you to add manual segmentations on a subject-by-subject basis without disrupting the pipeline.
-  ###
-  local file="$1"
-  local contrast="$2"
-  # Update global variable with segmentation file name
-  FILESEG="${file}_seg"
-  FILESEGMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECTSESSION}/anat/${FILESEG}-manual.nii.gz"
-  echo
-  echo "Looking for manual segmentation: $FILESEGMANUAL"
-  if [[ -e $FILESEGMANUAL ]]; then
-    echo "Found! Using manual segmentation."
-    rsync -avzh $FILESEGMANUAL ${FILESEG}.nii.gz
-    sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_sc -qc ${PATH_QC} -qc-subject ${SUBJECTSESSION}
-  else
-    echo "Not found. Proceeding with automatic segmentation."
-    # Segment spinal cord
-    sct_deepseg_sc -i ${file}.nii.gz -c $contrast -qc ${PATH_QC} -qc-subject ${SUBJECTSESSION}
-  fi
-}
 
 # SCRIPT STARTS HERE
 # ======================================================================================================================
@@ -107,6 +57,31 @@ cd ${SUBJECTSESSION}/anat
 # Define variables
 # We do a substitution '/' --> '_' in case there is a subfolder 'ses-0X/'
 file="${SUBJECTSESSION//[\/]/_}"
+
+# get a list of all sagittal chunks
+var = grep -R "*ax_chunk*"
+echo $var
+# stitch all sagittal stacks together, to one common space
+# the resulting file may be named:
+# sub-123456_ses-20220101_acq-ax_T2w.nii.gz
+# while the chunks may be named:
+# sub-123456_ses-20220101_acq-ax_chunk-1_T2w.nii.gz
+
+
+# get a list of all axial chunks
+# here we stitch both, chunks and masks together
+
+
+# sagittal chunks
+## determine number of sagittal chunks
+## https://stackoverflow.com/questions/69903324/how-to-count-the-number-of-files-each-pattern-of-a-group-appears-in-a-file
+
+
+ls $search_path | grep *.txt > filename.txt
+
+# Make sure q/sform are the same
+sct_image -i ${file_t1w}.nii.gz -set-sform-to-qform
+
 
 
 # T1w
