@@ -123,9 +123,10 @@ file_t1w_seg="${FILESEG}"
 # Create labels in the cord 
 label_if_does_not_exist "${file_t1w}" "${file_t1w_seg}"
 file_t1w_seg_labeled="${file_t1w_seg}_labeled"
-# Compute average CSA between C1 and C2 levels (append across subjects)
-sct_process_segmentation -i "${file_t1w_seg}.nii.gz" -vert 1:3 -vertfile ${file_t1w_seg_labeled}.nii.gz \
-                         -o "${PATH_RESULTS}/CSA.csv" -append 1 -qc "${PATH_QC}"
+
+# Compute average CSA between C1 and C7 levels 
+sct_process_segmentation -i "${file_t1w_seg}.nii.gz" -vert 1:7 -vertfile ${file_t1w_seg_labeled}.nii.gz \
+                         -o "${PATH_RESULTS}/csa_perlevel.csv" -perlevel 1 -append 1 -qc "${PATH_QC}"
 
 
 FILES_TO_CHECK=(
