@@ -1,6 +1,9 @@
 This Readme gives an overview of the complete spinal cord pipeline:
 
-- preprocess_raw_dataset.sh 
+- preprocess_raw_dataset.sh
+
+Run:  sct_run_batch -script preprocess_raw_dataset.sh -path-data BrainData -path-output result -jobs 24
+
 
 Transform the raw database:
 
