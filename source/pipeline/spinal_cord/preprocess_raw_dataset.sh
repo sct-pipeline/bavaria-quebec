@@ -58,7 +58,7 @@ cd ${SUBJECTSESSION}/anat
 # We do a substitution '/' --> '_' in case there is a subfolder 'ses-0X/'
 file="${SUBJECTSESSION//[\/]/_}"
 
-# T2w sagittal 
+# Process images
 # ======================================================================================================================
 
 # echo current directory
@@ -67,12 +67,9 @@ echo $PWD
 # get list of all nifti files except jsons
 files=(*)
 files=( $( for i in ${files[@]} ; do echo $i ; done | grep '.*T2w.nii.gz'))
-# For all files:
 
 for i in "${files[@]}"
 do
-   : 
-   # Make sure q/sform are the same
    sct_image -i $i -set-sform-to-qform
 done
 
@@ -80,67 +77,11 @@ done
 sag_files=( $( for i in ${files[@]} ; do echo $i ; done | grep 'acq-sag_chunk.*T2w.nii.gz'))
 axial_files=( $( for i in ${files[@]} ; do echo $i ; done | grep 'acq-ax_chunk.*T2w.nii.gz'))
 ax_lesion_files=( $( for i in ${files[@]} ; do echo $i ; done | grep 'acq-ax_chunk.*dseg.nii.gz'))
-
-# Debugging
 echo ${sag_files[@]}
 echo ${axial_files[@]}
 echo ${ax_lesion_files[@]}
 
-# Stitch sagittal stacks
-# Make sure q/sform are the same
-# sct_image -i ${sag_files[@]} -o sag_stitched.nii.gz -stitch
-
-# stitch all sagittal stacks together, to one common space
-# the resulting file may be named:
-# sub-123456_ses-20220101_acq-ax_T2w.nii.gz
-# while the chunks may be named:
-# sub-123456_ses-20220101_acq-ax_chunk-1_T2w.nii.gz
-
-
-# get a list of all axial chunks
-# here we stitch both, chunks and masks together
-
-
-# sagittal chunks
-## determine number of sagittal chunks
-## https://stackoverflow.com/questions/69903324/how-to-count-the-number-of-files-each-pattern-of-a-group-appears-in-a-file
-
-
-#ls $search_path | grep *.txt > filename.txt
-
-# Make sure q/sform are the same
-#sct_image -i ${file_t1w}.nii.gz -set-sform-to-qform
-
-: '
-
-# T1w
-# ======================================================================================================================
-file_t1w="${file}_T1w"
-
-# Make sure q/sform are the same
-sct_image -i ${file_t1w}.nii.gz -set-sform-to-qform
-
-# Segment spinal cord (only if it does not exist)
-segment_if_does_not_exist "${file_t1w}" "t1"
-file_t1w_seg="${FILESEG}"
-
-# Create labels in the cord 
-label_if_does_not_exist "${file_t1w}" "${file_t1w_seg}"
-file_t1w_seg_labeled="${file_t1w_seg}_labeled"
-# Compute average CSA between C1 and C2 levels (append across subjects)
-sct_process_segmentation -i "${file_t1w_seg}.nii.gz" -vert 1:3 -vertfile ${file_t1w_seg_labeled}.nii.gz \
-                         -o "${PATH_RESULTS}/CSA.csv" -append 1 -qc "${PATH_QC}"
-
-
-FILES_TO_CHECK=(
-  "$file_t1w_seg.nii.gz"
-)
-for file in "${FILES_TO_CHECK[@]}"; do
-  if [ ! -e "${file}" ]; then
-    echo "${SUBJECTSESSION}/${file} does not exist" >> "${PATH_LOG}/error.log"
-  fi
-done
-'
+sct_image -i $sag_files -o stitched.nii.gz -stitch 
 
 # Display useful info for the log
 end=`date +%s`
