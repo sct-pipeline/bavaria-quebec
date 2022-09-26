@@ -58,6 +58,8 @@ cd ${SUBJECTSESSION}/anat
 # We do a substitution '/' --> '_' in case there is a subfolder 'ses-0X/'
 file="${SUBJECTSESSION//[\/]/_}"
 
+echo $file
+
 # Process images
 # ======================================================================================================================
 
@@ -81,7 +83,7 @@ echo ${sag_files[@]}
 echo ${axial_files[@]}
 echo ${ax_lesion_files[@]}
 
-sct_image -i $sag_files -o stitched.nii.gz -stitch 
+sct_image -i $sag_files -o "${file}_stitched.nii.gz" -stitch 
 
 # Display useful info for the log
 end=`date +%s`
