@@ -58,9 +58,38 @@ cd ${SUBJECTSESSION}/anat
 # We do a substitution '/' --> '_' in case there is a subfolder 'ses-0X/'
 file="${SUBJECTSESSION//[\/]/_}"
 
-# get a list of all sagittal chunks
-var = grep -R "*ax_chunk*"
-echo $var
+# T2w sagittal 
+# ======================================================================================================================
+
+# echo current directory
+echo $PWD
+
+# get list of all nifti files except jsons
+files=(*)
+files=( $( for i in ${files[@]} ; do echo $i ; done | grep '.*T2w.nii.gz'))
+# For all files:
+
+for i in "${files[@]}"
+do
+   : 
+   # Make sure q/sform are the same
+   sct_image -i $i -set-sform-to-qform
+done
+
+# obtain seperate lists for axial chunks, sagittal chunks and axial lesions
+sag_files=( $( for i in ${files[@]} ; do echo $i ; done | grep 'acq-sag_chunk.*T2w.nii.gz'))
+axial_files=( $( for i in ${files[@]} ; do echo $i ; done | grep 'acq-ax_chunk.*T2w.nii.gz'))
+ax_lesion_files=( $( for i in ${files[@]} ; do echo $i ; done | grep 'acq-ax_chunk.*dseg.nii.gz'))
+
+# Debugging
+echo ${sag_files[@]}
+echo ${axial_files[@]}
+echo ${ax_lesion_files[@]}
+
+# Stitch sagittal stacks
+# Make sure q/sform are the same
+# sct_image -i ${sag_files[@]} -o sag_stitched.nii.gz -stitch
+
 # stitch all sagittal stacks together, to one common space
 # the resulting file may be named:
 # sub-123456_ses-20220101_acq-ax_T2w.nii.gz
@@ -77,12 +106,12 @@ echo $var
 ## https://stackoverflow.com/questions/69903324/how-to-count-the-number-of-files-each-pattern-of-a-group-appears-in-a-file
 
 
-ls $search_path | grep *.txt > filename.txt
+#ls $search_path | grep *.txt > filename.txt
 
 # Make sure q/sform are the same
-sct_image -i ${file_t1w}.nii.gz -set-sform-to-qform
+#sct_image -i ${file_t1w}.nii.gz -set-sform-to-qform
 
-
+: '
 
 # T1w
 # ======================================================================================================================
@@ -111,6 +140,7 @@ for file in "${FILES_TO_CHECK[@]}"; do
     echo "${SUBJECTSESSION}/${file} does not exist" >> "${PATH_LOG}/error.log"
   fi
 done
+'
 
 # Display useful info for the log
 end=`date +%s`
