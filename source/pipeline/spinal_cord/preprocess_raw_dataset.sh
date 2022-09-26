@@ -67,23 +67,34 @@ echo $file
 echo $PWD
 
 # get list of all nifti files except jsons
-files=(*)
-files=( $( for i in ${files[@]} ; do echo $i ; done | grep '.*T2w.nii.gz'))
+files=(*nii.gz)
+#files=( $( for i in ${files[@]} ; do echo $i ; done | grep '.*T2w.nii.gz'))
 
 for i in "${files[@]}"
 do
    sct_image -i $i -set-sform-to-qform
 done
 
-# obtain seperate lists for axial chunks, sagittal chunks and axial lesions
-sag_files=( $( for i in ${files[@]} ; do echo $i ; done | grep 'acq-sag_chunk.*T2w.nii.gz'))
-axial_files=( $( for i in ${files[@]} ; do echo $i ; done | grep 'acq-ax_chunk.*T2w.nii.gz'))
-ax_lesion_files=( $( for i in ${files[@]} ; do echo $i ; done | grep 'acq-ax_chunk.*dseg.nii.gz'))
-echo ${sag_files[@]}
-echo ${axial_files[@]}
-echo ${ax_lesion_files[@]}
+sag_files=(*acq-sag*.nii.gz)
+axial_files=(*acq-ax*T2w.nii.gz)
+ax_lesion_files=(*_dseg.nii.gz)
 
-sct_image -i $sag_files -o "${file}_stitched.nii.gz" -stitch 
+echo "${sag_files[@]}"
+echo "${axial_files[@]}"
+echo "${ax_lesion_files[@]}"
+
+# obtain seperate lists for axial chunks, sagittal chunks and axial lesions
+#sag_files=( $( for i in "${files[@]}" ; do echo $i ; done | grep 'acq-sag_chunk.*T2w.nii.gz'))
+#axial_files=( $( for i in "${files[@]}" ; do echo $i ; done | grep 'acq-ax_chunk.*T2w.nii.gz'))
+#ax_lesion_files=( $( for i in "${files[@]}" ; do echo $i ; done | grep 'acq-ax_chunk.*dseg.nii.gz'))
+#echo "${sag_files[@]}"
+#echo "${axial_files[@]}"
+#echo "${ax_lesion_files[@]}"
+#'''
+
+sct_image -i ${sag_files[@]} -o "${file}_acq-sag_T2w.nii.gz" -stitch 
+sct_image -i ${axial_files[@]} -o "${file}_acq-ax_T2w.nii.gz" -stitch 
+# sct_image -i ${ax_lesion_files[@]} -o "${file}_acq-sag_T2w.nii.gz" -stitch 
 
 # Display useful info for the log
 end=`date +%s`
