@@ -75,8 +75,8 @@ do
    sct_image -i $i -set-sform-to-qform
 done
 
-sag_files=(*acq-sag*.nii.gz)
-axial_files=(*acq-ax*T2w.nii.gz)
+sag_files=(*acq-sag_chunk*.nii.gz)
+axial_files=(*acq-ax_chunk*T2w.nii.gz)
 ax_lesion_files=(*_dseg.nii.gz)
 
 echo "${sag_files[@]}"
@@ -91,6 +91,8 @@ echo "${ax_lesion_files[@]}"
 #echo "${axial_files[@]}"
 #echo "${ax_lesion_files[@]}"
 #'''
+
+# first check number of files
 
 sct_image -i ${sag_files[@]} -o "${file}_acq-sag_T2w.nii.gz" -stitch 
 sct_image -i ${axial_files[@]} -o "${file}_acq-ax_T2w.nii.gz" -stitch 
