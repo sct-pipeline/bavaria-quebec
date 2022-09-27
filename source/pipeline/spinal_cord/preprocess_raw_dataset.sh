@@ -75,18 +75,20 @@ ax_lesion_files=(*_dseg.nii.gz)
 
 if (( ${#sag_files[@]} > 1))
 then
-    sct_image -i ${sag_files[@]} -o "${file}_acq-sag_T2w.nii.gz" -stitch
+    sct_image -i ${sag_files[@]} -o "${file}_acq-sag_T2w.nii.gz" -stitch -qc "${PATH_QC}"
 fi
 
 if ((  ${#axial_files[@]} > 1))
 then
-    sct_image -i ${axial_files[@]} -o "${file}_acq-ax_T2w.nii.gz" -stitch 
+    sct_image -i ${axial_files[@]} -o "${file}_acq-ax_T2w.nii.gz" -stitch -qc "${PATH_QC}"
 fi 
 
 if ((  ${#ax_lesion_files[@]} > 1 ))
 then
-    sct_image -i ${ax_lesion_files[@]} -o "${file}_acq-sag_T2w.nii.gz" -stitch 
+    sct_image -i ${ax_lesion_files[@]} -o "${file}_acq-sag_T2w.nii.gz" -stitch -qc "${PATH_QC}"
 fi 
+
+# fuse the JSONs
 
 # Display useful info for the log
 end=`date +%s`
