@@ -48,11 +48,11 @@ label_if_does_not_exist(){
     echo "Found! Using manual labels."
     rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
     # Generate labeled segmentation from manual disc labels
-    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -discfile ${FILELABEL}.nii.gz -c t1 -qc "${PATH_QC}" -qc-subject "${SUBJECTSESSION}"
+    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -discfile ${FILELABEL}.nii.gz -c t2 -qc "${PATH_QC}" -qc-subject "${SUBJECTSESSION}"
   else
     echo "Not found. Proceeding with automatic labeling."
     # Generate labeled segmentation
-    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1 -qc "${PATH_QC}" -qc-subject "${SUBJECTSESSION}"
+    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t2 -qc "${PATH_QC}" -qc-subject "${SUBJECTSESSION}"
   fi
 }
 
@@ -109,17 +109,20 @@ cd ${SUBJECTSESSION}/anat
 file="${SUBJECTSESSION//[\/]/_}"
 
 
-# T2w
+# T2w Sag
 # ======================================================================================================================
 file_t2w="${file}_T2w"
 echo $file_t2w
 
 file_t2w_sag="${file}_acq-sag_T2w"
 file_t2w_ax="${file}_acq-ax_T2w"
+file_t2w_les="${file}_acq-ax_dseg"
 
 # Make sure q/sform are the same
 sct_image -i ${file_t2w_sag}.nii.gz -set-sform-to-qform
 sct_image -i ${file_t2w_ax}.nii.gz -set-sform-to-qform
+
+# Compute segmentation, vertebrae labeling and CSA on sagittal image
 
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist "${file_t2w_sag}" "t2"
@@ -129,8 +132,8 @@ file_t2w_sag_seg="${FILESEG}"
 label_if_does_not_exist "${file_t2w_sag}" "${file_t2w_sag_seg}"
 file_t2w_sag_seg_labeled="${file_t2w_sag_seg}_labeled"
 
-# Compute average CSA between C1 and C7 levels 
-sct_process_segmentation -i "${file_t2w_sag_seg}.nii.gz" -vert 1:7 -vertfile ${file_t2w_sag_seg_labeled}.nii.gz \
+# Compute average CSA between C1 and L1 (21 regions)
+sct_process_segmentation -i "${file_t2w_sag_seg}.nii.gz" -vert 1:21 -vertfile ${file_t2w_sag_seg_labeled}.nii.gz \
                          -o "${PATH_RESULTS}/csa_perlevel.csv" -perlevel 1 -append 1 -qc "${PATH_QC}"
 
 
@@ -142,6 +145,11 @@ for file in "${FILES_TO_CHECK[@]}"; do
     echo "${SUBJECTSESSION}/${file} does not exist" >> "${PATH_LOG}/error.log"
   fi
 done
+
+## transfer lesion labels from sagittal to axial images
+## run lesion segmentation on axial images
+
+sct_deepseg_lesion -i ${file_t2w_ax}.nii.gz -c t2_ax -centerline CNN -brain 0 -igt ${file_t2w_les}.nii.gz
 
 # Display useful info for the log
 end=`date +%s`
