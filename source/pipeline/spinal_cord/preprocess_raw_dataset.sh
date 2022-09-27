@@ -57,6 +57,9 @@ cd ${SUBJECTSESSION}/anat
 # We do a substitution '/' --> '_' in case there is a subfolder 'ses-0X/'
 file="${SUBJECTSESSION//[\/]/_}"
 
+# in case there are no matching files
+shopt -s nullglob
+
 # get list of all nifti files except jsons
 files=(*nii.gz)
 
@@ -70,17 +73,17 @@ sag_files=(*acq-sag_chunk*.nii.gz)
 axial_files=(*acq-ax_chunk*T2w.nii.gz)
 ax_lesion_files=(*_dseg.nii.gz)
 
-if [ ${#sag_files[@]} -gt 1]
+if (( ${#sag_files[@]} > 1))
 then
     sct_image -i ${sag_files[@]} -o "${file}_acq-sag_T2w.nii.gz" -stitch
 fi
 
-if [ ${#axial_files[@]} -gt 1]
+if ((  ${#axial_files[@]} > 1))
 then
     sct_image -i ${axial_files[@]} -o "${file}_acq-ax_T2w.nii.gz" -stitch 
 fi 
 
-if [ ${#ax_lesion_files[@]} -gt 1]
+if ((  ${#ax_lesion_files[@]} > 1 ))
 then
     sct_image -i ${ax_lesion_files[@]} -o "${file}_acq-sag_T2w.nii.gz" -stitch 
 fi 
