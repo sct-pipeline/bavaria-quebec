@@ -18,7 +18,6 @@
 # PATH_LOG="~/log"
 # PATH_QC="~/qc"
 
-
 # BASH SETTINGS
 # ======================================================================================================================
 
@@ -58,18 +57,10 @@ cd ${SUBJECTSESSION}/anat
 # We do a substitution '/' --> '_' in case there is a subfolder 'ses-0X/'
 file="${SUBJECTSESSION//[\/]/_}"
 
-echo $file
-
-# Process images
-# ======================================================================================================================
-
-# echo current directory
-echo $PWD
-
 # get list of all nifti files except jsons
 files=(*nii.gz)
-#files=( $( for i in ${files[@]} ; do echo $i ; done | grep '.*T2w.nii.gz'))
 
+# use sform
 for i in "${files[@]}"
 do
    sct_image -i $i -set-sform-to-qform
@@ -79,24 +70,20 @@ sag_files=(*acq-sag_chunk*.nii.gz)
 axial_files=(*acq-ax_chunk*T2w.nii.gz)
 ax_lesion_files=(*_dseg.nii.gz)
 
-echo "${sag_files[@]}"
-echo "${axial_files[@]}"
-echo "${ax_lesion_files[@]}"
+if [ ${#sag_files[@]} -gt 1]
+then
+    sct_image -i ${sag_files[@]} -o "${file}_acq-sag_T2w.nii.gz" -stitch
+fi
 
-# obtain seperate lists for axial chunks, sagittal chunks and axial lesions
-#sag_files=( $( for i in "${files[@]}" ; do echo $i ; done | grep 'acq-sag_chunk.*T2w.nii.gz'))
-#axial_files=( $( for i in "${files[@]}" ; do echo $i ; done | grep 'acq-ax_chunk.*T2w.nii.gz'))
-#ax_lesion_files=( $( for i in "${files[@]}" ; do echo $i ; done | grep 'acq-ax_chunk.*dseg.nii.gz'))
-#echo "${sag_files[@]}"
-#echo "${axial_files[@]}"
-#echo "${ax_lesion_files[@]}"
-#'''
+if [ ${#axial_files[@]} -gt 1]
+then
+    sct_image -i ${axial_files[@]} -o "${file}_acq-ax_T2w.nii.gz" -stitch 
+fi 
 
-# first check number of files
-
-sct_image -i ${sag_files[@]} -o "${file}_acq-sag_T2w.nii.gz" -stitch 
-sct_image -i ${axial_files[@]} -o "${file}_acq-ax_T2w.nii.gz" -stitch 
-# sct_image -i ${ax_lesion_files[@]} -o "${file}_acq-sag_T2w.nii.gz" -stitch 
+if [ ${#ax_lesion_files[@]} -gt 1]
+then
+    sct_image -i ${ax_lesion_files[@]} -o "${file}_acq-sag_T2w.nii.gz" -stitch 
+fi 
 
 # Display useful info for the log
 end=`date +%s`
