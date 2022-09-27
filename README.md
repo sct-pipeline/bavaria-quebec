@@ -23,9 +23,11 @@ As all studied data are kept privately, this repository does not (and should not
 ## Data collection and organization
 ### Background Information 
 
-In this project, we use the [Spinal Cord Toolbox] (https://github.com/spinalcordtoolbox/spinalcordtoolbox) to analyze both, brain and spinal cord for multiple sclerosis research questions.
-The MS brain database has been curated by various PhD students of the lab at TUM and various pipelines, such as CAT12, LST and Freesurfer have been employed to analyze the data.
-Similarly, this project aims to create a spinal cord database to provide the possibility of large-scale analysis of spinal cord lesions, and the joined analysis with the brain.
+In this project, we use the [Spinal Cord Toolbox](https://github.com/spinalcordtoolbox/spinalcordtoolbox) to analyze both, brain and spinal cord for multiple sclerosis research questions. The MS brain database has been curated by various PhD students of the lab at TUM and various pipelines, such as CAT12, LST and Freesurfer have been employed to analyze the data. Similarly, this project aims to create a spinal cord database to provide the possibility of large-scale analysis of spinal cord lesions, and the joined analysis with the brain.
+
+### BIDS compliance
+
+Originally, the datasets and cohort have not complied with the BIDS standard. The conversion to BIDS is specific to each cohort and dataset, as the workflow for different sequences differs and due to the fact that medical doctors and students have segmented lesions in different ways. We attempt to gather all of the scripts related to the conversion in [BIDS Tools](https://github.com/jqmcginnis/bids_tools) and describe the newly introduced BIDS conventions in this repository.
 
 ### Brain Dataset
 
@@ -39,58 +41,9 @@ In a first step, the clinical practitioners perform a low-resolution scout scan 
 
 Finally, the dataset consists of a large-scale, multi-scanner patient cohort comprising multiple (longitudinal) sessions each consisting of multiple axially and sagitally aquired 2D MRI scans for each patient.  ll results are stored as DICOMs to the clinical PACS severs, and are subsequently extracted as one NIFTI+JSON per scan.
 
-#### Raw Dataset Structure
-
-The current, raw database is not structered in a 100% BIDS-compliant way, as depicted in this example:
-
-```
-...
-── m_123456
-│   ├── ses-20141127
-│   │   ├── sub-m_123456_ses-20141127_sequ-11_t2.json
-│   │   ├── sub-m_123456_ses-20141127_sequ-11_t2.nii.gz
-│   │   ├── sub-m_123456_ses-20141127_sequ-18_t2.json
-│   │   ├── sub-m_123456_ses-20141127_sequ-18_t2.nii.gz
-│   │   ├── sub-m_123456_ses-20141127_sequ-21_t2.json
-│   │   ├── sub-m_123456_ses-20141127_sequ-21_t2.nii.gz
-│   │   ├── sub-m_123456_ses-20141127_sequ-25_t2.json
-│   │   ├── sub-m_123456_ses-20141127_sequ-25_t2.nii.gz
-│   │   ├── sub-m_123456_ses-20141127_sequ-5_t2.json
-│   │   ├── sub-m_123456_ses-20141127_sequ-5_t2.nii.gz
-│   │   ├── sub-m_123456_ses-20141127_sequ-7_t2.json
-│   │   ├── sub-m_123456_ses-20141127_sequ-7_t2.nii.gz
-│   └── ses-20190411
-│       ├── sub-m_123456_ses-20190411_sequ-301_t2.json
-│       ├── sub-m_123456_ses-20190411_sequ-301_t2.nii.gz
-│       ├── sub-m_123456_ses-20190411_sequ-302_t2.json
-│       ├── sub-m_123456_ses-20190411_sequ-302_t2.nii.gz
-│       ├── sub-m_123456_ses-20190411_sequ-401_t2.json
-│       ├── sub-m_123456_ses-20190411_sequ-401_t2.nii.gz
-│       ├── sub-m_123456_ses-20190411_sequ-402_t2.json
-│       ├── sub-m_123456_ses-20190411_sequ-402_t2.nii.gz
-│       ├── sub-m_123456_ses-20190411_sequ-403_t2.json
-│       └── sub-m_123456_ses-20190411_sequ-403_t2.nii.gz
-├── m_016399
-│   ├── ses-20190129
-│   │   ├── sub-m_016399_ses-20190129_sequ-11_t2.json
-│   │   ├── sub-m_016399_ses-20190129_sequ-11_t2.nii.gz
-...
-
-```
+#### BIDS conform Raw Dataset Structure
 
 To establish a basis for subsequent processing, machine learning using ivadomed and integration with the spinal cord toolbox, we convert the database to a BIDS-compliant database, facilitating the integration with existing tools. As it is not completely clear, to which acquisition type (axial or sagittal) and chunk (cervical, thoracic and lumbar), each of the scans belongs to, this information has to be gathered and infered from the scans and sidecar jsons.
-
-For this, we use two scripts:
-
-```
-python3 parse_database.py -i{path_to_raw_db} -f dataset_description.csv -o .
-```
-
-Having gathered all required information, we can use the `dataset_description.csv` to create the BIDS-compliant database:
-
-```
-python3 create_bids_db.py -i {path_to_raw_db} -d dataset_description.csv -o .
-```
 
 The newly generated, BIDS compliant database adheres to the following structure:
 
@@ -103,66 +56,63 @@ The newly generated, BIDS compliant database adheres to the following structure:
 ├── dataset_description.json
 ├── derivatives
 │   └── labels
-│       └── sub-123456
+│       └── sub-m123456
 │           ├── ses-20220101
 │           │   └── anat
-│           │       ├── sub-123456_ses-20220101_acq-ax_lesions-manual.json
-│           │       ├── sub-123456_ses-20220101_acq-ax_lesions-manual.nii.gz
-│           │       ├── sub-123456_ses-20220101_acq-sag_lesions-manual.json
-│           │       └── sub-123456_ses-20220101_acq-sag_lesions-manual.nii.gz
+│           │       ├── sub-m123456_ses-20220101_acq-ax_lesions-manual.json
+│           │       ├── sub-m123456_ses-20220101_acq-ax_lesions-manual.nii.gz
+│           │       ├── sub-m123456_ses-20220101_acq-sag_lesions-manual.json
+│           │       └── sub-m123456_ses-20220101_acq-sag_lesions-manual.nii.gz
 │           └── ses-20220202
 │               └── anat
-│                   ├── sub-123456_ses-20220202_acq-ax_lesions-manual.json
-│                   ├── sub-123456_ses-20220202_acq-ax_lesions-manual.nii.gz
-│                   ├── sub-123456_ses-20220202_acq-sag_lesions-manual.json
-│                   └── sub-123456_ses-20220202_acq-sag_lesions-manual.nii.gz
+│                   ├── sub-m123456_ses-20220202_acq-ax_lesions-manual.json
+│                   ├── sub-m123456_ses-20220202_acq-ax_lesions-manual.nii.gz
+│                   ├── sub-m123456_ses-20220202_acq-sag_lesions-manual.json
+│                   └── sub-m123456_ses-20220202_acq-sag_lesions-manual.nii.gz
 ├── LICENSE
 ├── participants.json
 ├── participants.tsv
 ├── README.md
-└── sub-123456
+└── sub-m123456
     ├── ses-20220101
     │   ├── anat
-    │   │   ├── sub-123456_ses-20220101_acq-ax_T2w.json
-    │   │   ├── sub-123456_ses-20220101_acq-ax_T2w.nii.gz
-    │   │   ├── sub-123456_ses-20220101_axq-sag_T2w.json
-    │   │   └── sub-123456_ses-20220101_axq-sag_T2w.nii.gz
-    │   └── sub-123456_ses-20220101_scans.tsv
+    │   │   ├── sub-m123456_ses-20220101_acq-ax_T2w.json
+    │   │   ├── sub-m123456_ses-20220101_acq-ax_T2w.nii.gz
+    │   │   ├── sub-m123456_ses-20220101_axq-sag_T2w.json
+    │   │   └── sub-m123456_ses-20220101_axq-sag_T2w.nii.gz
+    │   └── sub-m123456_ses-20220101_scans.tsv
     └── ses-20220202
         ├── anat
-        │   ├── sub-123456_ses-20220202_acq-ax_chunk-1_T2w.json
-        │   ├── sub-123456_ses-20220202_acq-ax_chunk-1_T2w.nii.gz
-        │   ├── sub-123456_ses-20220202_acq-ax_chunk-2_T2w.json
-        │   ├── sub-123456_ses-20220202_acq-ax_chunk-2_T2w.nii.gz
-        │   ├── sub-123456_ses-20220202_acq-ax_chunk-3_T2w.json
-        │   ├── sub-123456_ses-20220202_acq-ax_chunk-3_T2w.nii.gz
-        │   ├── sub-123456_ses-20220202_acq-sag_chunk-1_T2w.json
-        │   ├── sub-123456_ses-20220202_acq-sag_chunk-1_T2w.nii.gz
-        │   ├── sub-123456_ses-20220202_acq-sag_chunk-2_T2w.json
-        │   ├── sub-123456_ses-20220202_acq-sag_chunk-2_T2w.nii.gz
-        │   ├── sub-123456_ses-20220202_acq-sag_chunk-3_T2w.json
-        │   └── sub-123456_ses-20220202_acq-sag_chunk-3_T2w.nii.gz
-        └── sub-123456_ses-20220202_scans.tsv
+        │   ├── sub-m123456_ses-20220202_acq-ax_chunk-1_T2w.json
+        │   ├── sub-m123456_ses-20220202_acq-ax_chunk-1_T2w.nii.gz
+        │   ├── sub-m123456_ses-20220202_acq-ax_chunk-2_T2w.json
+        │   ├── sub-m123456_ses-20220202_acq-ax_chunk-2_T2w.nii.gz
+        │   ├── sub-m123456_ses-20220202_acq-ax_chunk-3_T2w.json
+        │   ├── sub-m123456_ses-20220202_acq-ax_chunk-3_T2w.nii.gz
+        │   ├── sub-m123456_ses-20220202_acq-sag_chunk-1_T2w.json
+        │   ├── sub-m123456_ses-20220202_acq-sag_chunk-1_T2w.nii.gz
+        │   ├── sub-m123456_ses-20220202_acq-sag_chunk-2_T2w.json
+        │   ├── sub-m123456_ses-20220202_acq-sag_chunk-2_T2w.nii.gz
+        │   ├── sub-m123456_ses-20220202_acq-sag_chunk-3_T2w.json
+        │   └── sub-m123456_ses-20220202_acq-sag_chunk-3_T2w.nii.gz
+        └── sub-m123456_ses-20220202_scans.tsv
 ```
 
 ## Analysis Pipeline
 ### General Information
 
-Pipeline scripts can be found in [directory] (https://github.com/sct-pipeline/bavaria-quebec/tree/main/source/pipeline).
+Pipeline scripts can be found in [directory](https://github.com/sct-pipeline/bavaria-quebec/tree/main/source/pipeline).
 
 ### Preprocessing
 
 To use SCT's capabilities w.r.t. statistical analysis and registration to the PAM50 template, it is necessary to stitch the axial and sagittal slices to whole-spine images.
 
-For this, we evaluated multiple stitching algorithms. After thorough examination of the results, we decided to use the approach by [Lavdas et al.](https://github.com/biomedia-mira/stitching).
+For this, we evaluated multiple stitching algorithms. After thorough examination of the results, we decided to use the approach by [Lavdas et al.](https://github.com/biomedia-mira/stitching), which is now integrated in SCT v.5.8. 
 
-To employ the algorith, it is necessary to convert the scans using the [FSL-based conversion script](https://github.com/sct-pipeline/bavaria-quebec/tree/main/source/utility) to the following orientation:
+To obtain the stitched database, please run:
 
 ```
-Orientation:          Axial
-X axis orientation:   right to left
-Y axis orientation:   anterior to posterior
-Z axis orientation:   inferior to superior
+sct_run_batch -script preprocess_raw_dataset.sh -path-data /path/to/db -path-output result -jobs 4
 ```
 
 ### Processing
