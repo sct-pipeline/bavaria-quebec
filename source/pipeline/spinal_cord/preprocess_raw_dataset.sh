@@ -56,6 +56,7 @@ cd ${SUBJECTSESSION}/anat
 # Define variables
 # We do a substitution '/' --> '_' in case there is a subfolder 'ses-0X/'
 file="${SUBJECTSESSION//[\/]/_}"
+echo $file
 
 # in case there are no matching files
 shopt -s nullglob
@@ -83,9 +84,12 @@ then
     sct_image -i ${axial_files[@]} -o "${file}_acq-ax_T2w.nii.gz" -stitch -qc "${PATH_QC}"
 fi 
 
+# TODO: for lesion masks omit the quality check, instead perhaps it would be better to overlay it with axial
+# lesions fin order to check if they are alinged?
+
 if ((  ${#ax_lesion_files[@]} > 1 ))
 then
-    sct_image -i ${ax_lesion_files[@]} -o "${file}_acq-sag_T2w.nii.gz" -stitch -qc "${PATH_QC}"
+    sct_image -i ${ax_lesion_files[@]} -o "${file}_acq-sag_dseg.nii.gz" -stitch 
 fi 
 
 # fuse the JSONs
