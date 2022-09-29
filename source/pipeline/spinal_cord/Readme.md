@@ -4,6 +4,7 @@ This Readme gives an overview of the complete spinal cord pipeline:
 
 Run:  sct_run_batch -script preprocess_raw_dataset.sh -path-data BrainData -path-output result -jobs 24
 
+```
 
 Transform the raw database:
 
@@ -31,9 +32,9 @@ Transform the raw database:
     │   │   ├── sub-123456_ses-20220101_acq-sag_chunk-3_T2w.json
     │   │   └── sub-123456_ses-20220101_acq-sag_chunk-3_T2w.nii.gz
     │   └── sub-123456_ses-20220101_scans.tsv
-
+```
 To:
-
+```
 ├── derivatives
 └── sub-123456
     ├── ses-20220101
@@ -45,5 +46,4 @@ To:
     │   │   ├── sub-123456_ses-20220101_acq-sag_T2w.json
     │   │   └── sub-123456_ses-20220101_acq-sag_T2w.nii.gz
     │   └── sub-123456_ses-20220101_scans.tsv
-
-- 
+```
