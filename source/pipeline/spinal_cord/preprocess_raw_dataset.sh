@@ -96,6 +96,7 @@ then
     sct_image -i ${ax_lesion_files[@]} -o "${file}_acq-ax_dseg.nii.gz" -stitch 
     # stitching introduces interpolation due to resampling function, binarize output
     sct_maths -i "${file}_acq-ax_dseg.nii.gz" -bin 1e-12 -o "${file}_acq-ax_dseg.nii.gz"
+    sct_image -i "${file}_acq-ax_dseg.nii.gz" -type float32 -o "${file}_acq-ax_dseg.nii.gz"
 fi 
 
 # Display useful info for the log
