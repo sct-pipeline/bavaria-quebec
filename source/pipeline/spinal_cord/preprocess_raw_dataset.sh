@@ -64,7 +64,7 @@ shopt -s nullglob
 # get list of all nifti files except jsons
 files=(*nii.gz)
 
-# use sform
+# use qform
 for i in "${files[@]}"
 do
    sct_image -i $i -set-sform-to-qform
@@ -74,15 +74,28 @@ sag_files=(*acq-sag_chunk*.nii.gz)
 axial_files=(*acq-ax_chunk*T2w.nii.gz)
 ax_lesion_files=(*_dseg.nii.gz)
 
+# convert lesion labels to {0,1} range
+# apparently they were not labelled consistently
+# they vary e.g. {0,2.47081804} , {0, 2.157}, {0, 2.0} or {0,1}
+# probably because different people used different colors?
+
+for i in "${ax_lesion_files[@]}"
+do
+   sct_maths -i $i -bin 1e-12 -o $i
+done
+
+
 if (( ${#sag_files[@]} > 1))
 then
     sct_image -i ${sag_files[@]} -o "${file}_acq-sag_T2w.nii.gz" -stitch -qc "${PATH_QC}"
 fi
 
-if ((  ${#axial_files[@]} > 1))
+if (( ${#axial_files[@]} > 1))
 then
     sct_image -i ${axial_files[@]} -o "${file}_acq-ax_T2w.nii.gz" -stitch -qc "${PATH_QC}"
     sct_image -i ${ax_lesion_files[@]} -o "${file}_acq-ax_dseg.nii.gz" -stitch 
+    # stitching introduces interpolation due to resampling function, binarize output
+    sct_maths -i "${file}_acq-ax_dseg.nii.gz" -bin 1e-12 -o "${file}_acq-ax_dseg.nii.gz"
 fi 
 
 # Display useful info for the log
