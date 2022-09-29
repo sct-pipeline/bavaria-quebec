@@ -82,17 +82,8 @@ fi
 if ((  ${#axial_files[@]} > 1))
 then
     sct_image -i ${axial_files[@]} -o "${file}_acq-ax_T2w.nii.gz" -stitch -qc "${PATH_QC}"
-fi 
-
-# TODO: for lesion masks omit the quality check, instead perhaps it would be better to overlay it with axial
-# lesions fin order to check if they are alinged?
-
-if ((  ${#ax_lesion_files[@]} > 1 ))
-then
     sct_image -i ${ax_lesion_files[@]} -o "${file}_acq-ax_dseg.nii.gz" -stitch 
 fi 
-
-# fuse the JSONs
 
 # Display useful info for the log
 end=`date +%s`
