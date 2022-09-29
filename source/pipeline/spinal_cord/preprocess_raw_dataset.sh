@@ -81,6 +81,7 @@ ax_lesion_files=(*_dseg.nii.gz)
 
 for i in "${ax_lesion_files[@]}"
 do
+   sct_image -i $i -type float32 -o $i
    sct_maths -i $i -bin 1e-12 -o $i
 done
 
@@ -96,7 +97,6 @@ then
     sct_image -i ${ax_lesion_files[@]} -o "${file}_acq-ax_dseg.nii.gz" -stitch 
     # stitching introduces interpolation due to resampling function, binarize output
     sct_maths -i "${file}_acq-ax_dseg.nii.gz" -bin 1e-12 -o "${file}_acq-ax_dseg.nii.gz"
-    sct_image -i "${file}_acq-ax_dseg.nii.gz" -type float32 -o "${file}_acq-ax_dseg.nii.gz"
 fi 
 
 # Display useful info for the log
