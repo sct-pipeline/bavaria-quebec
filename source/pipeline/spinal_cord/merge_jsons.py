@@ -17,8 +17,8 @@ def check_identical(iterable):
 
 # read all jsons into dict list
 dict_list = []
-for i in range(len(args.list)):
-    with open(args.list[i]) as f:
+for i in range(len(args.input)):
+    with open(args.input[i]) as f:
         d = json.load(f)
     dict_list.append(d)
 
