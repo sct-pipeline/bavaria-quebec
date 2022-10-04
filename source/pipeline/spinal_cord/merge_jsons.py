@@ -5,7 +5,7 @@ from itertools import groupby
 
 # parse command line arguments
 parser = argparse.ArgumentParser(description='BIDSify the MS brain database.')
-parser.add_argument('-l', '--list', help='Paths of list of multiple json files we want to merge.', nargs='+', default=[], required=True)
+parser.add_argument('-i', '--input', help='Paths of list of multiple json files we want to merge.', nargs='+', default=[], required=True)
 parser.add_argument('-o', '--output', help='Path to output filename.', required=True)
 
 args = parser.parse_args()
