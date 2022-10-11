@@ -29,12 +29,18 @@ for d in dict_list:
 dd = dict(dd)
 dd_copy = dd.copy()
 
+print(dd)
+
 # reduce entries if identical to one element
 for key, values in dd.items():
     for value in values:
         if check_identical(values):
             dd_copy[key]=values[0]
 
+print(dd_copy)
+
+json_object = json.dumps(dd_copy, indent=4)
 # save to new dict
-with open(args.output, 'w') as fp:
-    json.dump(dd_copy, fp)
+with open(args.output, "w") as outfile:
+    outfile.write(json_object)
+

@@ -90,6 +90,8 @@ do
 done
 
 # obtain the directory where the script is located
+# Save script path
+PATH_SCRIPT=$PWD
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 echo $SCRIPT_DIR
 
@@ -97,16 +99,16 @@ if (( ${#sag_files[@]} > 1))
 then
     sct_image -i ${sag_files[@]} -o "${file}_acq-sag_T2w.nii.gz" -stitch -qc "${PATH_QC}"
     echo $PWD
-    python3 "${SCRIPT_DIR}/merge_jsons.py" -i ${sag_files_json[@]} -o "${file}_acq-sag_T2w.json"
+    python3 ${SCRIPT_DIR}/merge_jsons.py -i ${sag_files_json[@]} -o "${file}_acq-sag_T2w.json"
 fi
 
 if (( ${#axial_files[@]} > 1))
 then
     sct_image -i ${axial_files[@]} -o "${file}_acq-ax_T2w.nii.gz" -stitch -qc "${PATH_QC}"
-    python3 "${SCRIPT_DIR}/merge_jsons.py" -i ${axial_files_json[@]} -o "${file}_acq-ax_T2w.json"
+    python3 ${SCRIPT_DIR}/merge_jsons.py -i ${axial_files_json[@]} -o "${file}_acq-ax_T2w.json"
     # lesion files
     sct_image -i ${ax_lesion_files[@]} -o "${file}_acq-ax_dseg.nii.gz" -stitch 
-    python3 "${SCRIPT_DIR}/merge_jsons.py" -i ${ax_lesion_files_json[@]} -o "${file}_acq-ax_dseg.json"
+    python3 ${SCRIPT_DIR}/merge_jsons.py -i ${ax_lesion_files_json[@]} -o "${file}_acq-ax_dseg.json"
 
     # stitching introduces interpolation due to resampling function, binarize output
     sct_maths -i "${file}_acq-ax_dseg.nii.gz" -bin 1e-12 -o "${file}_acq-ax_dseg.nii.gz"
