@@ -91,9 +91,11 @@ done
 
 # obtain the directory where the script is located
 # Save script path
-PATH_SCRIPT=$PWD
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-echo $SCRIPT_DIR
+#PATH_SCRIPT=$PWD
+#SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+#echo $SCRIPT_DIR
+
+SCRIPT_DIR=$2
 
 if (( ${#sag_files[@]} > 1))
 then
