@@ -72,11 +72,13 @@ done
 
 sag_files=(*acq-sag_chunk*.nii.gz)
 axial_files=(*acq-ax_chunk*T2w.nii.gz)
-ax_lesion_files=(*_dseg.nii.gz)
+ax_lesion_files=(*lesions-manual.nii.gz)
+ax_sc_files=(*_seg-manual.nii.gz)
 
 sag_files_json=(*acq-sag_chunk*.json)
 axial_files_json=(*acq-ax_chunk*T2w.json)
-ax_lesion_files_json=(*_dseg.json)
+ax_lesion_files_json=(*_lesions-manual.json)
+ax_sc_files_json=(*_seg-manual.json)
 
 # convert lesion labels to {0,1} range
 # apparently they were not labelled consistently
@@ -108,12 +110,18 @@ if (( ${#axial_files[@]} > 1))
 then
     sct_image -i ${axial_files[@]} -o "${file}_acq-ax_T2w.nii.gz" -stitch -qc "${PATH_QC}"
     python3 ${SCRIPT_DIR}/merge_jsons.py -i ${axial_files_json[@]} -o "${file}_acq-ax_T2w.json"
+    
     # lesion files
-    sct_image -i ${ax_lesion_files[@]} -o "${file}_acq-ax_dseg.nii.gz" -stitch 
-    python3 ${SCRIPT_DIR}/merge_jsons.py -i ${ax_lesion_files_json[@]} -o "${file}_acq-ax_dseg.json"
+    sct_image -i ${ax_lesion_files[@]} -o "${file}_acq-ax_lesions-manual.nii.gz" -stitch 
+    python3 ${SCRIPT_DIR}/merge_jsons.py -i ${ax_lesion_files_json[@]} -o "${file}_acq-ax_lesions-manual.json"
+
+    # sc files
+    sct_image -i ${ax_sc_files[@]} -o "${file}_acq-ax_seg-manual.nii.gz" -stitch 
+    python3 ${SCRIPT_DIR}/merge_jsons.py -i ${ax_sc_files_json[@]} -o "${file}_acq-ax_seg-manual.json"
 
     # stitching introduces interpolation due to resampling function, binarize output
-    sct_maths -i "${file}_acq-ax_dseg.nii.gz" -bin 1e-12 -o "${file}_acq-ax_dseg.nii.gz"
+    sct_maths -i "${file}_acq-ax_lesions-manual.nii.gz" -bin 1e-12 -o "${file}_acq-ax_lesions-manual.nii.gz"
+    sct_maths -i "${file}_acq-ax_seg-manual.nii.gz" -bin 1e-12 -o "${file}_acq-ax_seg-manual.nii.gz"
 fi 
 
 # Display useful info for the log
