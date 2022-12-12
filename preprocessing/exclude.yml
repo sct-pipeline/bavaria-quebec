@@ -1,0 +1,15 @@
+# Sure subjects to remove
+- sub-m059072/ses-20110701    # mis-annotated lesion
+- sub-m342999/ses-20090710    # mis-annotated lesion
+- sub-m554635/ses-20100315    # mis-annotated lesion
+- sub-m554841/ses-20130425    # mis-annotated lesion
+- sub-m860816/ses-20081008    # preprocessing error because of ghosting-like artefact appearing due to stitching
+- sub-m902675/ses-20101207    # mis-annotated lesion
+- sub-m957995/ses-20100520    # mis-annotated lesion
+- sub-m593765/ses-20130903    # mismatch in input image and GT shapes + mis-annotated lesion
+- sub-m586980/ses-20130411    # mismatch in input image and GT shapes + mis-annotated lesion
+- sub-m294630/ses-20130208    # mismatch in input image and GT shapes + mis-annotated lesion
+
+# patch-wise sampling during training should fix shape mismatch
+- sub-m476431/ses-20130625    # mismatch in input image and GT shapes
+- sub-m784058/ses-20080314    # mis-annotated lesion seems like a mistake 

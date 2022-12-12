@@ -48,11 +48,11 @@ label_if_does_not_exist(){
     echo "Found! Using manual labels."
     rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
     # Generate labeled segmentation from manual disc labels
-    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -discfile ${FILELABEL}.nii.gz -c t1 -qc "${PATH_QC}" -qc-subject "${SUBJECTSESSION}"
+    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -discfile ${FILELABEL}.nii.gz -c t2 -qc "${PATH_QC}" -qc-subject "${SUBJECTSESSION}"
   else
     echo "Not found. Proceeding with automatic labeling."
     # Generate labeled segmentation
-    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1 -qc "${PATH_QC}" -qc-subject "${SUBJECTSESSION}"
+    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t2 -qc "${PATH_QC}" -qc-subject "${SUBJECTSESSION}"
   fi
 }
 
@@ -109,28 +109,28 @@ cd ${SUBJECTSESSION}/anat
 file="${SUBJECTSESSION//[\/]/_}"
 
 
-# T1w
+# T2w
 # ======================================================================================================================
-file_t1w="${file}_T1w"
+file_t2w="${file}_acq-ax_chunk-1_T2w"
 
 # Make sure q/sform are the same
-sct_image -i ${file_t1w}.nii.gz -set-sform-to-qform
+sct_image -i ${file_t2w}.nii.gz -set-sform-to-qform
 
 # Segment spinal cord (only if it does not exist)
-segment_if_does_not_exist "${file_t1w}" "t1"
-file_t1w_seg="${FILESEG}"
+segment_if_does_not_exist "${file_t2w}" "t2"
+file_t2w_seg="${FILESEG}"
 
 # Create labels in the cord 
-label_if_does_not_exist "${file_t1w}" "${file_t1w_seg}"
-file_t1w_seg_labeled="${file_t1w_seg}_labeled"
+label_if_does_not_exist "${file_t2w}" "${file_t2w_seg}"
+file_t2w_seg_labeled="${file_t2w_seg}_labeled"
 
 # Compute average CSA between C1 and C7 levels 
-sct_process_segmentation -i "${file_t1w_seg}.nii.gz" -vert 1:7 -vertfile ${file_t1w_seg_labeled}.nii.gz \
+sct_process_segmentation -i "${file_t2w_seg}.nii.gz" -vert 1:7 -vertfile ${file_t2w_seg_labeled}.nii.gz \
                          -o "${PATH_RESULTS}/csa_perlevel.csv" -perlevel 1 -append 1 -qc "${PATH_QC}"
 
 
 FILES_TO_CHECK=(
-  "$file_t1w_seg.nii.gz"
+  "$file_t2w_seg.nii.gz"
 )
 for file in "${FILES_TO_CHECK[@]}"; do
   if [ ! -e "${file}" ]; then
