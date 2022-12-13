@@ -9,6 +9,7 @@
 - sub-m593765/ses-20130903    # mismatch in input image and GT shapes + mis-annotated lesion
 - sub-m586980/ses-20130411    # mismatch in input image and GT shapes + mis-annotated lesion
 - sub-m294630/ses-20130208    # mismatch in input image and GT shapes + mis-annotated lesion
+- sub-m444588/ses-20100827    # mismatch in input image and GT shapes + mis-annotated lesion
 
 # patch-wise sampling during training should fix shape mismatch
 - sub-m476431/ses-20130625    # mismatch in input image and GT shapes
