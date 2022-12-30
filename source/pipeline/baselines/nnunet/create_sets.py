@@ -6,6 +6,9 @@ import os
 import shutil
 from collections import OrderedDict
 
+import nibabel as nib
+import numpy as np
+
 # this script is employed to generate the nn-Unet based dataset format
 # as described in this readme: 
 # https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/dataset_conversion.md
@@ -128,6 +131,17 @@ if __name__ == '__main__':
                     shutil.copyfile(ax_file, ax_file_nnunet)
                     shutil.copyfile(seg_file, seg_file_nnunet)
 
+                    # TO DO - put this in preprocessing routines!
+                    # replace the label header with the image header, and binarize label!
+                    image = nib.load(seg_file_nnunet)
+                    data = image.get_fdata()
+                    threshold = 1e-12
+                    data = np.where(data > threshold, 1, 0)
+                    ref = nib.load(ax_file_nnunet)
+                    new_image = nib.Nifti1Image(data, ref.affine, ref.header)
+                    nib.save(new_image, seg_file_nnunet)
+
+
                     conversion_dict[str(os.path.abspath(ax_file))] = ax_file_nnunet
                     conversion_dict[str(os.path.abspath(seg_file))] = seg_file_nnunet
 
@@ -205,8 +219,8 @@ if __name__ == '__main__':
 
     json_dict['training'] = [{'image': str(train_image_labels[i]).replace("labelsTr", "imagesTr") , "label": train_image_labels[i] }
                                 for i in range(len(train_image_ax))]
-    json_dict['test'] = [{'image': str(test_image_labels[i]).replace("labelsTs", "imagesTs") , "label": test_image_labels[i] }
-                                for i in range(len(test_image_ax))]
+    # https://github.com/MIC-DKFZ/nnUNet/issues/407
+    json_dict['test'] = [str(test_image_labels[i]).replace("labelsTs", "imagesTs") for i in range(len(test_image_ax))]
 
     # create dataset_description.json
     json_object = json.dumps(json_dict, indent=4)
