@@ -6,7 +6,6 @@ import os
 import shutil
 from collections import OrderedDict
 
-
 # this script is employed to generate the nn-Unet based dataset format
 # as described in this readme: 
 # https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/dataset_conversion.md
@@ -23,23 +22,24 @@ from collections import OrderedDict
 # label directory: 
 # 20221104_NeuroPoly_Cohort_work_in_progress/derivatives/labels/sub-m052556/ses-20130710/anat/
 # sub-m052556_ses-20130710_acq-ax_lesion-manual_T2w.nii.gz
+# 
+# it will likely fail for all other structures!
 
 
 # parse command line arguments
-parser = argparse.ArgumentParser(description='Convert a BIDS-structured database to the nn-Unet format.')
+parser = argparse.ArgumentParser(description='Convert BIDS-structured database to nn-unet format.')
 parser.add_argument('--image_directory', help='Path to BIDS structured database.', required=True)
 parser.add_argument('--label_directory', help='Path to BIDS structured database, the _label_ directory should be included.', required=True)
 parser.add_argument('--output_directory', help='Path to output directory.', required=True)
 parser.add_argument('--taskname', help='Specify the task name, e.g. Hippocampus', default='MSSpineLesion', type=str)
-parser.add_argument('--tasknumber', help='Specify the task number, has to be greater than 500', default=500,type=int)
-parser.add_argument('--split_dict', help='Specify the splits using ivadomed dict.', required=True)
+parser.add_argument('--tasknumber', help='Specify the task number, has to be greater than 500', default=501,type=int)
+parser.add_argument('--split_dict', help='Specify the splits using ivadomed dict, expecting a json file.', required=True)
 parser.add_argument('--use_sag_channel', action='store_true', help='Use sagittal image (no label) as a second input channel.')
 
 args = parser.parse_args()
 
 path_in_images = Path(args.image_directory)
 path_in_labels = Path(args.label_directory)
-
 path_out = Path(os.path.join(os.path.abspath(args.output_directory), f'Task{args.tasknumber}_{args.taskname}'))
 path_out_imagesTr = Path(os.path.join(path_out, 'imagesTr'))
 path_out_imagesTs = Path(os.path.join(path_out, 'imagesTs'))
@@ -67,7 +67,9 @@ if __name__ == '__main__':
     dirs = sorted(list(path_in_images.glob('*/')))
     dirs = [str(x) for x in dirs]
     
-    # filter 
+    # filter out derivatives directory for raw images
+    # ignore MAC .DS_Store files
+
     dirs = [k for k in dirs if 'sub' in k]
     dirs = [k for k in dirs if 'derivatives' not in k]
     dirs = [k for k in dirs if '.DS' not in k]
@@ -78,19 +80,21 @@ if __name__ == '__main__':
     with open(args.split_dict) as f:
         splits = json.load(f)
 
-    allowed_train_imgs = []
-    allowed_test_imgs = []
-    allowed_train_imgs.append(splits["train"])
-    allowed_train_imgs.append(splits["valid"])
-    allowed_test_imgs.append(splits["test"])
+    valid_train_imgs = []
+    valid_test_imgs = []
+    valid_train_imgs.append(splits["train"])
+    valid_train_imgs.append(splits["valid"])
+    valid_test_imgs.append(splits["test"])
+
+    # flatten the lists
+    valid_train_imgs =[item for sublist in valid_train_imgs for item in sublist] 
+    valid_test_imgs =[item for sublist in valid_test_imgs for item in sublist] 
 
     # assert number of training set images is equivalent to ivadomed
     for dir in dirs:  # iterate over subdirs
         # glob the session directories
         subdirs = sorted(list(Path(dir).glob('*')))
-        
         for subdir in subdirs:
-
             ax_file = sorted(list(subdir.rglob('*acq-ax_T2w.nii.gz')))[0]
 
             if args.use_sag_channel:
@@ -108,9 +112,9 @@ if __name__ == '__main__':
 
             assert os.path.isfile(seg_file), 'No segmentation mask with this name!'
 
-            if any(str(Path(ax_file).name) in word for word in allowed_train_imgs) or any(str(Path(ax_file).name) in word for word in allowed_test_imgs):
+            if any(str(Path(ax_file).name) in word for word in valid_train_imgs) or any(str(Path(ax_file).name) in word for word in valid_test_imgs):
 
-                if any(str(Path(ax_file).name) in word for word in allowed_train_imgs):
+                if any(str(Path(ax_file).name) in word for word in valid_train_imgs):
 
                     scan_cnt_train+= 1
                     # create the new convention names
@@ -156,15 +160,16 @@ if __name__ == '__main__':
                         conversion_dict[str(os.path.abspath(sag_file))] = sag_file_nnunet
            
             else:
-                print("Skipping file", ax_file)
+                print("Skipping file, could not be located in the specified split.", ax_file)
 
-    # assert scan_cnt_train == len(allowed_train_imgs), 'No. of train/val images does not correspond to ivadomed dict.'
-    # assert scan_cnt_test == len(allowed_test_imgs), 'No. of test images does not correspond to ivadomed dict.'
+    assert scan_cnt_train == len(valid_train_imgs), 'No. of train/val images does not correspond to ivadomed dict.'
+    assert scan_cnt_test == len(valid_test_imgs), 'No. of test images does not correspond to ivadomed dict.'
 
     # create dataset_description.json
     json_object = json.dumps(conversion_dict, indent=4)
     # write to dataset description
-    with open(os.path.join(path_out,"conversion_dict.json"), "w") as outfile:
+    conversion_dict_name = f"conversion_dict_sagittal_channel_{args.use_sag_channel}.json"
+    with open(os.path.join(path_out, conversion_dict_name), "w") as outfile:
         outfile.write(json_object)
 
 
@@ -206,7 +211,8 @@ if __name__ == '__main__':
     # create dataset_description.json
     json_object = json.dumps(json_dict, indent=4)
     # write to dataset description
-    with open(os.path.join(path_out,"dataset_train.json"), "w") as outfile:
+    dataset_dict_name = f"dataset_sagittal_channel_{args.use_sag_channel}.json"
+    with open(os.path.join(path_out, dataset_dict_name), "w") as outfile:
         outfile.write(json_object)
 
 
