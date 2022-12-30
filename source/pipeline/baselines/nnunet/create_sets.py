@@ -211,7 +211,8 @@ if __name__ == '__main__':
     # create dataset_description.json
     json_object = json.dumps(json_dict, indent=4)
     # write to dataset description
-    dataset_dict_name = f"dataset_sagittal_channel_{args.use_sag_channel}.json"
+    # nn-unet requires it to be "dataset.json"
+    dataset_dict_name = f"dataset.json"
     with open(os.path.join(path_out, dataset_dict_name), "w") as outfile:
         outfile.write(json_object)
 
