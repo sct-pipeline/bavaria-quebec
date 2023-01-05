@@ -217,15 +217,10 @@ if __name__ == '__main__':
     json_dict['numTraining'] = scan_cnt_train
     json_dict['numTest'] = scan_cnt_test
 
-    # nnUNet requires 'training' and 'test' keys in 'dataset_description.json', however, the paths for the image and label in this 
-    # file, in the way nnUNet example shows here (https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/dataset_conversion.md) 
-    # does not exist. But, the training works nevertheless (suggesting that this file might actually not be used during training
-    # or retrieving the files). In any case, the correct path is provided for images and labels below. 
-    json_dict['training'] = [{'image': str(train_image_ax[i]) , "label": train_image_labels[i]} for i in range(len(train_image_ax))]
-
-    # Note 1: The same reason as above for providing the correct path for test images
-    # Note 2: See https://github.com/MIC-DKFZ/nnUNet/issues/407 for how this should be described
-    json_dict['test'] = [str(test_image_ax[i]) for i in range(len(test_image_ax))]
+    json_dict['training'] = [{'image': str(train_image_labels[i]).replace("labelsTr", "imagesTr") , "label": train_image_labels[i] }
+                                 for i in range(len(train_image_ax))]
+    # Note: See https://github.com/MIC-DKFZ/nnUNet/issues/407 for how this should be described
+    json_dict['test'] = [str(test_image_labels[i]).replace("labelsTs", "imagesTs") for i in range(len(test_image_ax))]
 
     # create dataset_description.json
     json_object = json.dumps(json_dict, indent=4)
