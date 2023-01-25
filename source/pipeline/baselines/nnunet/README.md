@@ -101,7 +101,7 @@ Here 501 corresponds to the task id you assigned during the train/test set gener
 
 As nn-unet takes a while to train, it's very practical that nnunet automatically saves checkpoints every 50 epochs. To continue training, simply add the `-c` option. E.g.
 
-`nnUNet_plan_and_preprocess -t 501 -tl 32 -tf 32 --verify_dataset_integrity -c`
+`CUDA_VISIBLE_DEVICES=6 nnUNet_train 3d_fullres nnUnetTrainV2 501 3 --npz -c`
 
 ### Choosing the best model
 
