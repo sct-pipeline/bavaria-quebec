@@ -97,6 +97,12 @@ CUDA_VISIBLE_DEVICES=6 nnUNet_train 3d_fullres nnUnetTrainV2 501 3 --npz
 
 Here 501 corresponds to the task id you assigned during the train/test set generation, and 3 to the fold id (run the same instructions for all folds in [0,1,2,3,4]).
 
+### Resuming the training after N (50, 100, ...) epochs
+
+As nn-unet takes a while to train, it's very practical that nnunet automatically saves checkpoints every 50 epochs. To continue training, simply add the `-c` option. E.g.
+
+`nnUNet_plan_and_preprocess -t 501 -tl 32 -tf 32 --verify_dataset_integrity -c`
+
 ### Choosing the best model
 
 Run `nnUNet_find_best_configuration` to identify the best model based on five-fold cross validation. However, this also requires you having trained all five folds! You can also disable ensembling via `--disable_ensembling`.
