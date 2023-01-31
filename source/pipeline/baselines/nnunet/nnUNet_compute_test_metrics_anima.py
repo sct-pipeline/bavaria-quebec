@@ -38,12 +38,13 @@ and in Section 4 of this paper (for how the subjects with no lesions are handled
 https://portal.fli-iam.irisa.fr/files/2021/06/MS_Challenge_Evaluation_Challengers.pdf
 
 INSTALLATION:
+##### STEP 0: Install git lfs via apt if you don't already have it.
 ##### STEP 1: Install ANIMA #####
 cd ~
 mkdir anima/
 cd anima/
-wget -q https://github.com/Inria-Visages/Anima-Public/releases/download/v4.0.1/Anima-Ubuntu-4.0.1.zip   (change version to latest)
-unzip Anima-Ubuntu-4.0.1.zip
+wget -q https://github.com/Inria-Visages/Anima-Public/releases/download/v4.2/Anima-Ubuntu-4.2.zip   (change version to latest)
+unzip Anima-Ubuntu-4.2.zip
 git lfs install
 git clone --depth 1 https://github.com/Inria-Visages/Anima-Scripts-Public.git
 git clone --depth 1 https://github.com/Inria-Visages/Anima-Scripts-Data-Public.git
@@ -61,7 +62,7 @@ nano .anima/config.txt
 # Use full paths, nothing relative or using tildes 
 
 [anima-scripts]
-anima = /home/<your-user-name>/anima/Anima-Binaries-4.0.1/
+anima = /home/<your-user-name>/anima/Anima-Binaries-4.2/
 anima-scripts-public-root = /home/<your-user-name>/anima/Anima-Scripts-Public/
 extra-data-root = /home/<your-user-name>/anima/Anima-Scripts-Data-Public/
 
@@ -82,7 +83,7 @@ import numpy as np
 import nibabel as nib
 
 # get the ANIMA binaries path
-cmd = r'''grep "^anima = " ~/.anima_4.1.1/config.txt | sed "s/.* = //"'''
+cmd = r'''grep "^anima = " ~/.anima/config.txt | sed "s/.* = //"'''
 anima_binaries_path = subprocess.check_output(cmd, shell=True).decode('utf-8').strip('\n')
 print('ANIMA Binaries Path:', anima_binaries_path)
 
