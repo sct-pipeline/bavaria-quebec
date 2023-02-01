@@ -82,6 +82,7 @@ import pandas as pd
 import numpy as np
 import nibabel as nib
 from pathlib import Path
+import re
 
 # get the ANIMA binaries path
 cmd = r'''grep "^anima = " ~/.anima/config.txt | sed "s/.* = //"'''
@@ -92,18 +93,26 @@ print('ANIMA Binaries Path:', anima_binaries_path)
 parser = argparse.ArgumentParser(description='Compute test metrics using animaSegPerfAnalyzer')
 
 # Arguments for model, data, and training
-parser.add_argument('--pred_folder', required=True, type=str,
-                    help='Path to the folder containing nifti images of test predictions')
-parser.add_argument('--gt_folder', required=True, type=str,
-                    help='Path to the folder containing nifti images of GT labels')              
-parser.add_argument('-o', '--output_folder', required=True, type=str,
-                    help='Path to the output folder to save the test metrics results')
+parser.add_argument('--derivatives', required=True, type=str,
+                    help='Path to the folder containing nifti images of test predictions and gt. Assuming BIDS structure.')
+parser.add_argument('--output_folder', required=True, type=str,
+                    help='Path to the output folder.')
+parser.add_argument('--gt_identifier', required=True, type=str,
+                    help='Common sub-string identifying GT Files, e.g. lesion-manual.')              
+parser.add_argument('--pred_identifier', required=True, type=str,
+                    help='Common sub-string identifying Prediction Files, e.g. lesion-processed.')       
 
 args = parser.parse_args()
 
-pred_folder, gt_folder = args.pred_folder, args.gt_folder
-num_predictions = len(glob.glob(os.path.join(pred_folder, "*.nii.gz")))
-num_gts = len(glob.glob(os.path.join(gt_folder, "*.nii.gz"))) 
+# get GT and Prediction FIles
+gt_files = sorted(list(Path(args.derivatives).rglob(f'*{args.gt_identifier}*nii.gz')))
+pred_files = sorted(list(Path(args.derivatives).rglob(f'*{args.pred_identifier}*nii.gz')))
+
+print(gt_files)
+print(pred_files)
+
+num_predictions = len(pred_files)
+num_gts = len(gt_files)
 
 if not os.path.exists(args.output_folder):
     os.makedirs(args.output_folder, exist_ok=True)
@@ -112,34 +121,70 @@ if not os.path.exists(args.output_folder):
 assert num_gts == num_predictions, 'Number of predictions and GTs do not match. Please check the folders.'
 print(num_gts, "\t", num_predictions)
 
-def get_test_metrics(pred_folder, gt_folder, num_predictions):
+def getSubjectID(path):
+    """
+    :param path: path to data file
+    :return: return the BIDS-compliant subject ID
+    """
+    stringList = str(path).split("/")
+    indices = [i for i, s in enumerate(stringList) if 'sub-' in s]
+    text = stringList[indices[0]]
+    try:
+        found = re.search(r'sub-m(\d{6})', text).group(1)
+    except AttributeError:
+        found = ''
+    return found
+
+def getSessionID(path):
+    """
+    :param path: path to data file
+    :return: return the BIDS-compliant session ID
+    """
+    stringList = str(path).split("/")
+    indices = [i for i, s in enumerate(stringList) if '_ses-' in s]
+    text = stringList[indices[0]]
+    try:
+        found = re.search(r'ses-(\d{8})', text).group(1)
+    except AttributeError:
+        found = ''
+    return found
+
+
+def get_test_metrics(pred_files, gt_files, num_predictions):
     """
     Computes the test metrics given folders containing nifti images of test predictions 
     and GT images by running the "animaSegPerfAnalyzer" command
     """
 
-    predictions = glob.glob(os.path.join(pred_folder, "*.nii.gz"))
-    gts = glob.glob(os.path.join(gt_folder, "*.nii.gz"))
-
     for idx in range(num_predictions):
+
+        # check if gt and ped correspond to same session and subject!
         
         # Load the predictions and GTs        
-        pred_file = predictions[idx]
+        pred_file = str(pred_files[idx])
         pred_npy = nib.load(pred_file).get_fdata()
         # make sure the predictions are binary because ANIMA accepts binarized inputs only
         pred_npy = np.array(pred_npy > 0.5, dtype=float)
 
-        gt_file = gts[idx]
+        gt_file = str(gt_files[idx])
         gt_npy = nib.load(gt_file).get_fdata()
         # make sure the GT is binary because ANIMA accepts binarized inputs only
         gt_npy = np.array(gt_npy > 0.5, dtype=float)
         # print(((gt_npy==0.0) | (gt_npy==1.0)).all())
 
+        assert getSubjectID(gt_file) == getSubjectID(pred_file), "Fatal Error. Subject ID mismatch."
+        assert getSessionID(gt_file) == getSessionID(pred_file), "Fatal Error. Subject ID mismatch."
+
         # Save the binarized predictions and GTs
         pred_nib = nib.Nifti1Image(pred_npy, affine=np.eye(4))
         gtc_nib = nib.Nifti1Image(gt_npy, affine=np.eye(4))
-        #nib.save(img=pred_nib, filename=os.path.join(pred_folder, f"{args.task_name}_{(idx+1):03d}_binarized.nii.gz"))
-        #nib.save(img=gtc_nib, filename=os.path.join(gt_folder, f"{args.task_name}_{(idx+1):03d}_binarized.nii.gz"))
+        gt_file_binarized = gt_file.replace(".nii.gz", "_binarized.nii.gz")
+        pred_file_binarized = pred_file.replace(".nii.gz", "_binarized.nii.gz")
+
+        print(gt_file_binarized)
+
+        nib.save(img=pred_nib, filename=pred_file_binarized)
+        nib.save(img=gtc_nib, filename=gt_file_binarized)
 
         # Run ANIMA segmentation performance metrics on the predictions
         # NOTE 1: For checking all the available options run the following command from your terminal: 
@@ -151,26 +196,28 @@ def get_test_metrics(pred_folder, gt_folder, num_predictions):
         #       -X -> save as XML file  -A -> prints details on output metrics and exits
         
         seg_perf_analyzer_cmd = '%s -i %s -r %s -o %s -d -l -a -s -X'
+        print("call anima")
+
         os.system(seg_perf_analyzer_cmd %
                     (os.path.join(anima_binaries_path, 'animaSegPerfAnalyzer'),
-                    os.path.join(pred_folder, f"{args.task_name}_{(idx+1):03d}_binarized.nii.gz"),
-                    os.path.join(gt_folder, f"{args.task_name}_{(idx+1):03d}_binarized.nii.gz"),
+                    pred_file_binarized,
+                    gt_file_binarized,
                     os.path.join(args.output_folder, f"{(idx+1)}")))
 
         # Delete temporary binarized NIfTI files
-        os.remove(os.path.join(pred_folder, f"{args.task_name}_{(idx+1):03d}_binarized.nii.gz"))
-        os.remove(os.path.join(gt_folder, f"{args.task_name}_{(idx+1):03d}_binarized.nii.gz"))
+        os.remove(gt_file_binarized)
+        os.remove(pred_file_binarized)
 
     # Get all XML filepaths where ANIMA performance metrics are saved for each hold-out subject
     subject_filepaths = [os.path.join(args.output_folder, f) for f in
                             os.listdir(args.output_folder) if f.endswith('.xml')]
     
     return subject_filepaths
-    
+
+
 
 # Get all XML filepaths where ANIMA performance metrics are saved for each hold-out subject
-subject_filepaths = get_test_metrics(pred_folder, gt_folder, num_predictions)
-
+subject_filepaths = get_test_metrics(pred_files, gt_files, num_predictions)
 test_metrics = defaultdict(list)
 
 # Update the test metrics dictionary by iterating over all subjects
