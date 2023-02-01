@@ -137,22 +137,41 @@ sct_crop_image -i ${file}_T2w.nii.gz -m ${file_seg}_dilate.nii.gz -o ${file}_T2w
 # Resample the cropped image to 0.75mm isotropic
 sct_resample -i ${file}_T2w_crop.nii.gz -mm 0.75x0.75x0.75 -o ${file}_T2w_crop_res.nii.gz
 
-# Resample the spinal cord mask
-sct_resample -i ${file_seg}.nii.gz -mm 0.75x0.75x0.75 -o ${file_seg}_res.nii.gz
+# sub-m829931_ses-20121212_acq-ax_seg.nii.gz 
 
-# Run sct_deepseg_lesion with the cropped image and mask
+# Use dilated mask to crop the original image and manual MS segmentations
+sct_crop_image -i ${file_seg}.nii.gz -m ${file_seg}_dilate.nii.gz -o ${file_seg}_T2w_crop.nii.gz
 
-#1) Try sct_deep_seg for axial images with thick slices (and resampled isotropic input images) and t2_ax setting
+# Resample the cropped image to 0.75mm isotropic_seg
+sct_resample -i ${file_seg}_T2w_crop.nii.gz -mm 0.75x0.75x0.75 -o ${file_seg}_T2w_crop_res.nii.gz
 
-sct_deepseg_lesion -i ${file}_T2w_crop_res.nii.gz -c t2_ax -centerline file -file_centerline ${file_seg}_res.nii.gz -o lesion_t2ax
+# sct_deep_seg for cropped, axial images with thick slices using the t2_ax setting
+# sct_deepseg_lesion -i ${file}_T2w_crop_res.nii.gz -c t2_ax -centerline file -file_centerline ${file_seg}_res.nii.gz -o lesion_t2ax
+sct_deepseg_lesion -i ${file}_T2w_crop_res.nii.gz -c t2_ax -o lesion_t2ax
 
-# 2) Try sct_deep_seg for axial images with thick slices (and resampled isotropic input images) and t2 setting
+# Go to subject folder for segmentation GTs
+cd $PATH_DATA_PROCESSED/derivatives/labels/$SUBJECT/anat
 
-sct_deepseg_lesion -i ${file}_T2w_crop_res.nii.gz -c t2 -centerline file -file_centerline ${file_seg}_res.nii.gz -o lesion_t2
+# Define variables
+file_gt="${file}_lesion-manual"
 
-# 3) Try sct_deep_seg axial on un-resampeld data (let sct_deepseg do it?)
+# Redefine variable for final SC segmentation mask as path changed
+file_seg_dil=${PATH_DATA_PROCESSED}/${SUBJECT}/anat/${file_seg}_dilate
 
-sct_deepseg_lesion -i ${file}_T2w_crop.nii.gz -c t2 -centerline file -file_centerline ${file_seg}.nii.gz -o lesion_t2_noresampling
+# Make sure the first rater metadata is a valid JSON object
+if [[ ! -s ${file_gt}.json ]]; then
+  echo "{}" >> ${file_gt}.json
+fi
+
+# Crop the manual seg
+sct_crop_image -i ${file_gt}.nii.gz -m ${file_seg_dil}.nii.gz -o ${file_gt}_crop.nii.gz
+
+# Resample the manual seg to 0.75mm isotropic
+sct_resample -i ${file_gt}_crop.nii.gz -mm 0.75x0.75x0.75 -o ${file_gt}_crop_res.nii.gz
+
+# Re-binarize the output segmentation due to the resampling function
+sct_maths -i ${file_gt}_crop_res.nii.gz -bin 1e-12 -o ${file_gt}_crop_res.nii.gz
+
 # Go back to the root output path
 cd $PATH_OUTPUT
 
@@ -166,28 +185,14 @@ rsync -avzh $PATH_DATA_PROCESSED/participants.* $PATH_DATA_PROCESSED_CLEAN/
 rsync -avzh $PATH_DATA_PROCESSED/README $PATH_DATA_PROCESSED_CLEAN/
 rsync -avzh $PATH_DATA_PROCESSED/dataset_description.json $PATH_DATA_PROCESSED_CLEAN/derivatives/
 
-# For lesion segmentation task, copy SC crops as inputs and lesion annotations as targets
-rsync -avzh $PATH_DATA_PROCESSED/${SUBJECT}/anat/${file}_T2w_crop_res.nii.gz $PATH_DATA_PROCESSED_CLEAN/${SUBJECT}/anat/${file}_T2w.nii.gz
-rsync -avzh $PATH_DATA_PROCESSED/${SUBJECT}/anat/${file}_T2w.json $PATH_DATA_PROCESSED_CLEAN/${SUBJECT}/anat/${file}_T2w.json
-mkdir -p $PATH_DATA_PROCESSED_CLEAN/derivatives $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8 $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8/labels 
-mkdir -p $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8/labels/${SUBJECT} $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8/labels/${SUBJECT}/anat/
-
-#rsync -avzh $PATH_DATA_PROCESSED/derivatives/labels/${SUBJECT}/anat/${file_gt}_crop_res.nii.gz $PATH_DATA_PROCESSED_CLEAN/derivatives/labels/${SUBJECT}/anat/${file_gt}.nii.gz
-#rsync -avzh $PATH_DATA_PROCESSED/derivatives/labels/${SUBJECT}/anat/${file_gt}.json $PATH_DATA_PROCESSED_CLEAN/derivatives/labels/${SUBJECT}/anat/${file_gt}.json
-
-mkdir -p $PATH_DATA_PROCESSED_CLEAN/derivatives $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-isotropic $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-isotropic/labels 
-mkdir -p $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-isotropic/labels/${SUBJECT} $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-isotropic/labels/${SUBJECT}/anat/
-
 mkdir -p $PATH_DATA_PROCESSED_CLEAN/derivatives $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-anisotropic $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-anisotropic/labels 
 mkdir -p $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-anisotropic/labels/${SUBJECT} $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-anisotropic/labels/${SUBJECT}/anat/
 
-mkdir -p $PATH_DATA_PROCESSED_CLEAN/derivatives $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-isotropic-wo-resampling $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-isotropic-wo-resampling/labels 
-mkdir -p $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-isotropic-wo-resampling/labels/${SUBJECT} $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-isotropic-wo-resampling/labels/${SUBJECT}/anat/
-
-# 2023-12-29_NeuroPoly_Cohorts/test_deepseg_lesion/data_processed/sub-m808926/ses-20161202/anat/lesion_t2
+rsync -avzh $PATH_DATA_PROCESSED/${SUBJECT}/anat/${file}_T2w_crop_res.nii.gz $PATH_DATA_PROCESSED_CLEAN/${SUBJECT}/anat/${file}_T2w.nii.gz
+rsync -avzh $PATH_DATA_PROCESSED/${SUBJECT}/anat/${file}_T2w.json $PATH_DATA_PROCESSED_CLEAN/${SUBJECT}/anat/${file}_T2w.json
+rsync -avzh $PATH_DATA_PROCESSED/derivatives/labels/${SUBJECT}/anat/${file_gt}_crop_res.nii.gz $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-anisotropic/labels/${SUBJECT}/anat/${file_gt}.nii.gz
+rsync -avzh $PATH_DATA_PROCESSED/derivatives/labels/${SUBJECT}/anat/${file_gt}.json $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-anisotropic/labels/${SUBJECT}/anat/${file_gt}.json
 rsync -avzh $PATH_DATA_PROCESSED/${SUBJECT}/anat/lesion_t2ax/${file}_T2w_crop_res_lesionseg.nii.gz $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-anisotropic/labels/${SUBJECT}/anat/${file}_lesion-processed_T2w.nii.gz
-rsync -avzh $PATH_DATA_PROCESSED/${SUBJECT}/anat/lesion_t2/${file}_T2w_crop_res_lesionseg.nii.gz $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-isotropic/labels/${SUBJECT}/anat/${file}_lesion-processed_T2w.nii.gz
-rsync -avzh $PATH_DATA_PROCESSED/${SUBJECT}/anat/lesion_t2_noresampling/${file}_T2w_crop_lesionseg.nii.gz $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-isotropic-wo-resampling/labels/${SUBJECT}/anat/${file}_lesion-processed_T2w.nii.gz
 
 # Display useful info for the log
 end=`date +%s`
