@@ -170,11 +170,11 @@ rsync -avzh $PATH_DATA_PROCESSED/dataset_description.json $PATH_DATA_PROCESSED_C
 mkdir -p $PATH_DATA_PROCESSED_CLEAN/derivatives $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-anisotropic $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-anisotropic/labels 
 mkdir -p $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-anisotropic/labels/${SUBJECT} $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-anisotropic/labels/${SUBJECT}/anat/
 
-rsync -avzh $PATH_DATA_PROCESSED/${SUBJECT}/anat/${file}_T2w_crop_res.nii.gz $PATH_DATA_PROCESSED_CLEAN/${SUBJECT}/anat/${file}_T2w.nii.gz
+rsync -avzh $PATH_DATA_PROCESSED/${SUBJECT}/anat/${file}_T2w_res.nii.gz $PATH_DATA_PROCESSED_CLEAN/${SUBJECT}/anat/${file}_T2w.nii.gz
 rsync -avzh $PATH_DATA_PROCESSED/${SUBJECT}/anat/${file}_T2w.json $PATH_DATA_PROCESSED_CLEAN/${SUBJECT}/anat/${file}_T2w.json
-rsync -avzh $PATH_DATA_PROCESSED/derivatives/labels/${SUBJECT}/anat/${file_gt}_crop_res.nii.gz $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-anisotropic/labels/${SUBJECT}/anat/${file_gt}.nii.gz
+rsync -avzh $PATH_DATA_PROCESSED/derivatives/labels/${SUBJECT}/anat/${file_gt}_res.nii.gz $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-anisotropic/labels/${SUBJECT}/anat/${file_gt}.nii.gz
 rsync -avzh $PATH_DATA_PROCESSED/derivatives/labels/${SUBJECT}/anat/${file_gt}.json $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-anisotropic/labels/${SUBJECT}/anat/${file_gt}.json
-rsync -avzh $PATH_DATA_PROCESSED/${SUBJECT}/anat/lesion_t2ax/${file}_T2w_crop_res_lesionseg.nii.gz $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-anisotropic/labels/${SUBJECT}/anat/${file}_lesion-processed_T2w.nii.gz
+rsync -avzh $PATH_DATA_PROCESSED/${SUBJECT}/anat/lesion_t2ax/${file}_T2w_res_lesionseg.nii.gz $PATH_DATA_PROCESSED_CLEAN/derivatives/sct-5.8-anisotropic/labels/${SUBJECT}/anat/${file}_lesion-processed_T2w.nii.gz
 
 # Display useful info for the log
 end=`date +%s`
