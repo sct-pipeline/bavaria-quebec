@@ -38,6 +38,7 @@ parser.add_argument('--taskname', help='Specify the task name, e.g. Hippocampus'
 parser.add_argument('--tasknumber', help='Specify the task number, has to be greater than 500', default=501,type=int)
 parser.add_argument('--split_dict', help='Specify the splits using ivadomed dict, expecting a json file.', required=True)
 parser.add_argument('--use_sag_channel', action='store_true', help='Use sagittal image (no label) as a second input channel.')
+parser.add_argument('--label_str', help="String included in label file of the NIFTI. Must be unique!", required=True)
 
 args = parser.parse_args()
 
@@ -111,7 +112,7 @@ if __name__ == '__main__':
 
             # find the corresponding segmentation file
             seg_path = os.path.join(args.label_directory, common)
-            seg_file = sorted(list(Path(seg_path).rglob('*lesion*.nii.gz')))[0]
+            seg_file = sorted(list(Path(seg_path).rglob(f'*{args.label_str}*.nii.gz')))[0]
 
             assert os.path.isfile(seg_file), 'No segmentation mask with this name!'
 
@@ -211,7 +212,7 @@ if __name__ == '__main__':
     
     json_dict['labels'] = {
         "0": "background",
-        "1": "lesion",
+        "1": f"{args.label_str}"
 
    }
     json_dict['numTraining'] = scan_cnt_train
