@@ -43,7 +43,7 @@ args = parser.parse_args()
 
 path_in_images = Path(args.image_directory)
 path_in_labels = Path(args.label_directory)
-path_out = Path(os.path.join(os.path.abspath(args.output_directory), f'Task{args.tasknumber}_{args.taskname}'))
+path_out = Path(os.path.join(os.path.abspath(args.output_directory), f'Dataset{args.tasknumber}_{args.taskname}'))
 path_out_imagesTr = Path(os.path.join(path_out, 'imagesTr'))
 path_out_imagesTs = Path(os.path.join(path_out, 'imagesTs'))
 path_out_labelsTr = Path(os.path.join(path_out, 'labelsTr'))
