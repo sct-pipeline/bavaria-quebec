@@ -195,24 +195,25 @@ if __name__ == '__main__':
     json_dict = OrderedDict()
     json_dict['name'] = args.taskname
     json_dict['description'] = args.taskname
+    json_dict['file_ending'] = ".nii.gz"
     json_dict['tensorImageSize'] = "3D"
     json_dict['reference'] = "TBD"
     json_dict['licence'] = "TBD"
     json_dict['release'] = "0.0"
 
     if args.use_sag_channel:
-        json_dict['modality'] = {
+        json_dict['channel_names'] = {
             "0": "ax",
             "1": "sag",
         }
     else:
-        json_dict['modality'] = {
+        json_dict['channel_names'] = {
             "0": "ax",
         }
     
     json_dict['labels'] = {
-        "0": "background",
-        "1": f"{args.label_str}"
+        "background": 0,
+        f"{args.label_str}": 1,
 
    }
     json_dict['numTraining'] = scan_cnt_train

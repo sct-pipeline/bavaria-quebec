@@ -19,10 +19,10 @@ d = dict((v,k) for k,v in d.items())
 
 res = dict()
 for key, val in d.items():
-   if 't1' in val:
-        new_key = os.path.basename(key).replace('.gz','')
-        new_val = os.path.basename(val).replace('.gz','')
-        new_val = new_val.replace("t1","mask")
+   if 'T2w' in val:
+        new_key = os.path.basename(key)#.replace('.gz','')
+        new_val = os.path.basename(val)#.replace('.gz','')
+        new_val = new_val.replace("T2w","mask")
         new_key = new_key.replace("_0000","")
         res[new_key] = new_val
 
