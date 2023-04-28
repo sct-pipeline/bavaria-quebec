@@ -200,13 +200,10 @@ if __name__ == '__main__':
                         os.symlink(os.path.abspath(sag_file), sag_file_nnunet)
                         conversion_dict[str(os.path.abspath(sag_file))] = sag_file_nnunet
 
+                    seg_file_nnunet = os.path.join(path_out_labelsTr,f'{args.taskname}_{scan_cnt_train:03d}.nii.gz')
+                    
                     # segmentation files
                     if not args.use_region_based:
-
-                        # TO DO - put this in preprocessing routines!
-                        # replace the label header with the image header, and binarize label!
-                        # FOR NOW we are COPYING, and NOT providing symlinks so the original labels are not affected
-                        seg_file_nnunet = os.path.join(path_out_labelsTr,f'{args.taskname}_{scan_cnt_train:03d}.nii.gz')
 
                         if args.binarize_labels:
                             # we copy the original label and binarize it 
@@ -218,6 +215,8 @@ if __name__ == '__main__':
                         else:
                             # we only create a symlink
                             os.symlink(os.path.abspath(seg_file), seg_file_nnunet)
+
+                        conversion_dict[str(os.path.abspath(seg_file))] = seg_file_nnunet
 
                     else:
 
@@ -241,7 +240,7 @@ if __name__ == '__main__':
                         nib.save(mask, seg_file_nnunet)
 
                     train_image_labels.append(str(seg_file_nnunet))
-                    conversion_dict[str(os.path.abspath(seg_file))] = seg_file_nnunet
+
   
                 else:
 
@@ -261,13 +260,9 @@ if __name__ == '__main__':
                         conversion_dict[str(os.path.abspath(sag_file))] = sag_file_nnunet
 
                     # segmentation files
+                    seg_file_nnunet = os.path.join(path_out_labelsTs,f'{args.taskname}_{scan_cnt_test:03d}.nii.gz')
 
                     if not args.use_region_based:
-
-                        # TO DO - put this in preprocessing routines!
-                        # replace the label header with the image header, and binarize label!
-                        # FOR NOW we are COPYING, and NOT providing symlinks so the original labels are not affected
-                        seg_file_nnunet = os.path.join(path_out_labelsTs,f'{args.taskname}_{scan_cnt_test:03d}.nii.gz')
 
                         if args.binarize_labels:
                             # we copy the original label and binarize it 
@@ -279,6 +274,8 @@ if __name__ == '__main__':
                         else:
                             # we only create a symlink
                             os.symlink(os.path.abspath(seg_file), seg_file_nnunet)
+                        
+                        conversion_dict[str(os.path.abspath(seg_file))] = seg_file_nnunet
                         
                     else:
 
@@ -302,7 +299,7 @@ if __name__ == '__main__':
                         nib.save(mask, seg_file_nnunet)
 
                     test_image_labels.append(str(seg_file_nnunet))
-                    conversion_dict[str(os.path.abspath(seg_file))] = seg_file_nnunet
+
            
             else:
                 print("Skipping file, could not be located in the specified split.", ax_file)
