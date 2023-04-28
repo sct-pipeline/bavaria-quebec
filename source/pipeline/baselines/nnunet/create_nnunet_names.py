@@ -218,37 +218,31 @@ if __name__ == '__main__':
                         else:
                             # we only create a symlink
                             os.symlink(os.path.abspath(seg_file), seg_file_nnunet)
-                        
-                        train_image_labels.append(str(seg_file_nnunet))
-                        conversion_dict[str(os.path.abspath(seg_file))] = seg_file_nnunet
 
                     else:
 
-                        global_seg_file_nnunet = os.path.join(path_out_labelsTr,f'{args.taskname}_{scan_cnt_train:03d}_0000.nii.gz')
-                        local_seg_file_nnunet = os.path.join(path_out_labelsTr,f'{args.taskname}_{scan_cnt_train:03d}_00001.nii.gz')
+                        # read both files
+                        region_global_data = nib.load(region_global).get_fdata()
+                        region_local_data = nib.load(region_local).get_fdata()
 
                         if args.binarize_labels:
+                            # binarize with threshold
+                            region_global_data = np.where(region_global_data > args.threshold, 1, 0)
+                            region_local_data = np.where(region_local_data > args.threshold, 1, 0)
 
-                            # we copy the original label and binarize it 
-                            shutil.copyfile(region_global, global_seg_file_nnunet)
-                            shutil.copyfile(region_local, local_seg_file_nnunet)
+                        data = region_local_data + region_global_data
+                        data = np.rint(data)
 
-                            # overwrite the global label file
-                            new_image = binarize_segmentation(ax_file_nnunet, global_seg_file_nnunet, args.threshold)
-                            nib.save(new_image, global_seg_file_nnunet)
+                        # create new nifti
+                        ref = nib.load(ax_file_nnunet)
+                        mask = nib.Nifti1Image(data, ref.affine, ref.header)
 
-                            # overwrite the local label file                         
-                            new_image = binarize_segmentation(ax_file_nnunet, local_seg_file_nnunet, args.threshold)
-                            nib.save(new_image, local_seg_file_nnunet)
+                        seg_file_nnunet = os.path.join(path_out_labelsTr,f'{args.taskname}_{scan_cnt_train:03d}.nii.gz')
+                        nib.save(mask, seg_file_nnunet)
 
-                        else:
-                            # we only create a symlink
-                            os.symlink(os.path.abspath(region_global), global_seg_file_nnunet)
-                            os.symlink(os.path.abspath(region_local), local_seg_file_nnunet)
-
-                        train_image_labels.append(str(global_seg_file_nnunet))
-                        train_image_labels.append(str(local_seg_file_nnunet))
-
+                    train_image_labels.append(str(seg_file_nnunet))
+                    conversion_dict[str(os.path.abspath(seg_file))] = seg_file_nnunet
+  
                 else:
 
                     scan_cnt_test+= 1
@@ -286,35 +280,29 @@ if __name__ == '__main__':
                             # we only create a symlink
                             os.symlink(os.path.abspath(seg_file), seg_file_nnunet)
                         
-                        test_image_labels.append(str(seg_file_nnunet))
-                        conversion_dict[str(os.path.abspath(seg_file))] = seg_file_nnunet
-
                     else:
 
-                        global_seg_file_nnunet = os.path.join(path_out_labelsTs,f'{args.taskname}_{scan_cnt_test:03d}_0000.nii.gz')
-                        local_seg_file_nnunet = os.path.join(path_out_labelsTs,f'{args.taskname}_{scan_cnt_test:03d}_00001.nii.gz')
+                        # read both files
+                        region_global_data = nib.load(region_global).get_fdata()
+                        region_local_data = nib.load(region_local).get_fdata()
 
                         if args.binarize_labels:
+                            # binarize with threshold
+                            region_global_data = np.where(region_global_data > args.threshold, 1, 0)
+                            region_local_data = np.where(region_local_data > args.threshold, 1, 0)
 
-                            # we copy the original label and binarize it 
-                            shutil.copyfile(region_global, global_seg_file_nnunet)
-                            shutil.copyfile(region_local, local_seg_file_nnunet)
+                        data = region_local_data + region_global_data
+                        data = np.rint(data)
 
-                            # overwrite the global label file
-                            new_image = binarize_segmentation(ax_file_nnunet, global_seg_file_nnunet, args.threshold)
-                            nib.save(new_image, global_seg_file_nnunet)
+                        # create new nifti
+                        ref = nib.load(ax_file_nnunet)
+                        mask = nib.Nifti1Image(data, ref.affine, ref.header)
 
-                            # overwrite the local label file                         
-                            new_image = binarize_segmentation(ax_file_nnunet, local_seg_file_nnunet, args.threshold)
-                            nib.save(new_image, local_seg_file_nnunet)
+                        seg_file_nnunet = os.path.join(path_out_labelsTs,f'{args.taskname}_{scan_cnt_test:03d}.nii.gz')
+                        nib.save(mask, seg_file_nnunet)
 
-                        else:
-                            # we only create a symlink
-                            os.symlink(os.path.abspath(region_global), global_seg_file_nnunet)
-                            os.symlink(os.path.abspath(region_local), local_seg_file_nnunet)
-
-                        test_image_labels.append(str(global_seg_file_nnunet))
-                        # test_image_labels.append(str(local_seg_file_nnunet))
+                    test_image_labels.append(str(seg_file_nnunet))
+                    conversion_dict[str(os.path.abspath(seg_file))] = seg_file_nnunet
            
             else:
                 print("Skipping file, could not be located in the specified split.", ax_file)
