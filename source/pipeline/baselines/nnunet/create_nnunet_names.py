@@ -9,6 +9,7 @@ from collections import OrderedDict
 import sys
 import nibabel as nib
 import numpy as np
+from tqdm import tqdm
 
 # this script is employed to generate the nn-Unet based dataset format
 # as described in this readme: 
@@ -148,7 +149,7 @@ if __name__ == '__main__':
     valid_train_imgs =[item for sublist in valid_train_imgs for item in sublist] 
     valid_test_imgs =[item for sublist in valid_test_imgs for item in sublist] 
 
-    for dir in dirs:
+    for dir in tqdm(dirs):
         # glob the session directories
         subdirs = sorted(list(Path(dir).glob('*')))
         for subdir in subdirs:
@@ -190,13 +191,13 @@ if __name__ == '__main__':
                     train_image_ax.append(str(ax_file_nnunet))
 
                     # create a system link (instead of copying)
-                    os.symlink(os.path.abspath(ax_file, ax_file_nnunet))
+                    os.symlink(os.path.abspath(ax_file), ax_file_nnunet)
                     conversion_dict[str(os.path.abspath(ax_file))] = ax_file_nnunet
 
                     if args.use_sag_channel:
                         sag_file_nnunet = os.path.join(path_out_imagesTr,f'{args.taskname}_{scan_cnt_train:03d}_0001.nii.gz')
                         train_image_sag.append(str(sag_file_nnunet))
-                        os.symlink(os.path.abspath(sag_file, sag_file_nnunet))
+                        os.symlink(os.path.abspath(sag_file), sag_file_nnunet)
                         conversion_dict[str(os.path.abspath(sag_file))] = sag_file_nnunet
 
                     # segmentation files
@@ -216,7 +217,7 @@ if __name__ == '__main__':
 
                         else:
                             # we only create a symlink
-                            os.symlink(os.path.abspath(seg_file, seg_file_nnunet))
+                            os.symlink(os.path.abspath(seg_file), seg_file_nnunet)
                         
                         train_image_labels.append(str(seg_file_nnunet))
                         conversion_dict[str(os.path.abspath(seg_file))] = seg_file_nnunet
@@ -242,8 +243,8 @@ if __name__ == '__main__':
 
                         else:
                             # we only create a symlink
-                            os.symlink(os.path.abspath(region_global, global_seg_file_nnunet))
-                            os.symlink(os.path.abspath(region_local, local_seg_file_nnunet))
+                            os.symlink(os.path.abspath(region_global), global_seg_file_nnunet)
+                            os.symlink(os.path.abspath(region_local), local_seg_file_nnunet)
 
                         train_image_labels.append(str(global_seg_file_nnunet))
                         train_image_labels.append(str(local_seg_file_nnunet))
@@ -256,13 +257,13 @@ if __name__ == '__main__':
                     test_image_ax.append(str(ax_file_nnunet))
 
                     # create a system link (instead of copying)
-                    os.symlink(os.path.abspath(ax_file, ax_file_nnunet))
+                    os.symlink(os.path.abspath(ax_file), ax_file_nnunet)
                     conversion_dict[str(os.path.abspath(ax_file))] = ax_file_nnunet
 
                     if args.use_sag_channel:
                         sag_file_nnunet = os.path.join(path_out_imagesTs,f'{args.taskname}_{scan_cnt_test:03d}_0001.nii.gz')
                         test_image_sag.append(str(sag_file_nnunet))
-                        os.symlink(os.path.abspath(sag_file, sag_file_nnunet))
+                        os.symlink(os.path.abspath(sag_file), sag_file_nnunet)
                         conversion_dict[str(os.path.abspath(sag_file))] = sag_file_nnunet
 
                     # segmentation files
@@ -283,7 +284,7 @@ if __name__ == '__main__':
 
                         else:
                             # we only create a symlink
-                            os.symlink(os.path.abspath(seg_file, seg_file_nnunet))
+                            os.symlink(os.path.abspath(seg_file), seg_file_nnunet)
                         
                         test_image_labels.append(str(seg_file_nnunet))
                         conversion_dict[str(os.path.abspath(seg_file))] = seg_file_nnunet
@@ -309,8 +310,8 @@ if __name__ == '__main__':
 
                         else:
                             # we only create a symlink
-                            os.symlink(os.path.abspath(region_global, global_seg_file_nnunet))
-                            os.symlink(os.path.abspath(region_local, local_seg_file_nnunet))
+                            os.symlink(os.path.abspath(region_global), global_seg_file_nnunet)
+                            os.symlink(os.path.abspath(region_local), local_seg_file_nnunet)
 
                         test_image_labels.append(str(global_seg_file_nnunet))
                         test_image_labels.append(str(local_seg_file_nnunet))
