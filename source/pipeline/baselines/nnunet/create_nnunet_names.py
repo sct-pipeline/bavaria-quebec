@@ -314,7 +314,7 @@ if __name__ == '__main__':
                             os.symlink(os.path.abspath(region_local), local_seg_file_nnunet)
 
                         test_image_labels.append(str(global_seg_file_nnunet))
-                        test_image_labels.append(str(local_seg_file_nnunet))
+                        # test_image_labels.append(str(local_seg_file_nnunet))
            
             else:
                 print("Skipping file, could not be located in the specified split.", ax_file)
