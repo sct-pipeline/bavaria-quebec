@@ -131,7 +131,7 @@ fi
 # file_seg="${FILESEG}"
 
 # Define variable for SC segmentation
-file_seg=${file}_seg-manual
+file_seg=${file}_seg-manual_T2w
 
 # Make sure the seg file is a valid JSON object
 if [[ ! -s ${file_seg}.json ]]; then
@@ -139,7 +139,7 @@ if [[ ! -s ${file_seg}.json ]]; then
 fi
 
 # Define variable for lesion mask
-file_lesion=${file}_lesion-manual
+file_lesion=${file}_lesions-manual_T2w
 
 # Make sure the lesion file is a valid JSON object
 if [[ ! -s ${file_lesion}.json ]]; then
@@ -153,7 +153,7 @@ sct_straighten_spinalcord -i ${file}_T2w.nii.gz -s ${file_seg}.nii.gz -o ${file}
 sct_apply_transfo -i ${file_lesion}.nii.gz -d ${file}_T2w_straight.nii.gz -w warp_curve2straight.nii.gz -o ${file_lesion}_straight.nii.gz
 
 # Threshold the lesion mask for very low values
-sct_maths -i ${file_lesion}_straight.nii.gz -o ${file_lesion}_straight.nii.gz -thr 0.5
+sct_maths -i ${file_lesion}_straight.nii.gz -o ${file_lesion}_straight.nii.gz -thr 0.9
 
 # Go back to the root output path
 cd $PATH_OUTPUT
