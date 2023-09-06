@@ -1,0 +1,49 @@
+
+SEED: 42
+SAVE_TEST_PREDS: True
+
+DIRS:
+    # Path to the directory containing the datalist in MSD json format
+    DATASET: /home/USER/data
+    # Path to the directory for saving models
+    SAVE_PATH: /home/USER/saved_models
+    # Path to the directory for saving model predictions
+    RESULTS_DIR: /home/USER/results
+
+DATA:
+    NUM_SAMPLES_PER_IMAGE: 1
+
+# Model parameters
+MODEL:
+    # monai model
+    TYPE: monai_unet
+    INIT_FILTERS: 32
+    IN_CHANNELS: 1
+    NUM_CLASSES: 3
+    PATCH_SIZE: [128, 128, 128]
+
+    # nnunet model
+    # MODEL_NAME: nnunet
+    # NUM_INIT_FILTERS: 32
+    # IN_CHANNELS: 1
+    # NUM_CLASSES: 3
+    # ENABLE_DEEP_SUPERVISION: True
+
+
+# Optimizer parameters
+OPTIM:
+    OPTIMIZER: 'Adam'
+    LR: 0.0001
+    WEIGHT_DECAY: 0.0001
+    MAX_EPOCHS: 100
+    VAL_EVERY_N_EPOCHS: 5
+    PATIENCE: 20
+    BATCH_SIZE: 2
+
+# Debug
+DEBUGGING:
+    DEBUG: False
+
+# WandB params
+WANDB:
+    GRP_NAME: 'monai_unet'

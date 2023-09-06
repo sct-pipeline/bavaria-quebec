@@ -1,0 +1,23 @@
+{
+    "UNet_class_name": "PlainConvUNet",
+    "UNet_base_num_features": 32,
+    "n_conv_per_stage_encoder": [2, 2, 2, 2, 2, 2],
+    "n_conv_per_stage_decoder": [2, 2, 2, 2, 2],
+    "pool_op_kernel_sizes": [
+        [1, 1, 1],
+        [2, 2, 2],
+        [2, 2, 2],
+        [2, 2, 2],
+        [2, 2, 2],
+        [2, 2, 1]   
+    ],
+    "conv_kernel_sizes": [
+        [3, 3, 3],
+        [3, 3, 3],
+        [3, 3, 3],
+        [3, 3, 3],
+        [3, 3, 3],
+        [3, 3, 3]
+    ],
+    "unet_max_num_features": 320
+}
