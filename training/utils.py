@@ -192,6 +192,32 @@ def dice_score(prediction, groundtruth):
     return dice
 
 
+def multi_class_dice_score(im1, im2):
+    """Dice score for multi-label images.
+
+    Multi-class Dice score equals the average of the Dice score for each class.
+    The first dimension of the input arrays is assumed to represent the classes.
+
+    Args:
+        im1 (ndarray): First array.
+        im2 (ndarray): Second array.
+
+    Returns:
+        float: Multi-class dice.
+    """
+    dice_per_class = 0
+    n_classes = im1.shape[0]
+    # # initialize a dict with dice scores for each class
+    # dice_dict = {f'class_{i}': 0.0 for i in range(n_classes)}
+
+    for i in range(n_classes):
+        # dice_dict[f'class_{i}'] = dice_score(im1[i,], im2[i,], empty_score=1.0)
+        dice_per_class += dice_score(im1[i,], im2[i,]) #, empty_score=1.0)
+
+    return dice_per_class / n_classes
+    # return dice_dict
+
+
 def plot_slices(image, gt, pred, debug=False):
     """
     Plot the image, ground truth and prediction of the mid-sagittal axial slice
