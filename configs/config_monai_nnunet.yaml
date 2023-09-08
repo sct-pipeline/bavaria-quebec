@@ -1,6 +1,7 @@
 
 SEED: 42
-SAVE_TEST_PREDS: True
+SAVE_TEST_PREDS: False
+DEBUG: True
 
 DIRS:
     # Path to the directory containing the datalist in MSD json format
@@ -15,27 +16,24 @@ DATA:
 
 # Model parameters
 MODEL:
-    # monai model
-    TYPE: monai_unet
+    # nnunet model
+    TYPE: nnunet
     INIT_FILTERS: 32
     IN_CHANNELS: 1
     NUM_CLASSES: 3
-    PATCH_SIZE: [128, 128, 128]
+    ENABLE_DEEP_SUPERVISION: True
+    PATCH_SIZE: [160, 128, 112]
 
 # Optimizer parameters
 OPTIM:
-    OPTIMIZER: 'Adam'
-    LR: 0.0001
-    WEIGHT_DECAY: 0.0001
-    MAX_EPOCHS: 100
-    VAL_EVERY_N_EPOCHS: 5
+    OPTIMIZER: 'sgd'
+    LR: 0.01
+    WEIGHT_DECAY: 3e-5
+    MAX_EPOCHS: 1
+    VAL_EVERY_N_EPOCHS: 1
     PATIENCE: 20
     BATCH_SIZE: 2
 
-# Debug
-DEBUGGING:
-    DEBUG: False
-
 # WandB params
 WANDB:
-    GRP_NAME: 'monai_unet'
+    GRP_NAME: 'monai_nnunet'
