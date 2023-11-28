@@ -67,7 +67,7 @@ def binarize_segmentation(ax_file_nnunet, seg_file_nnunet, threshold):
     data = image.get_fdata()
     data = np.where(data > threshold, 1, 0)
     ref = nib.load(ax_file_nnunet)
-    return nib.Nifti1Image(data, ref.affine, ref.header)
+    return nib.Nifti1Image(data.astype(int), ref.affine, ref.header)
 
 if __name__ == '__main__':
 
