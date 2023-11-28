@@ -241,7 +241,7 @@ if __name__ == '__main__':
 
                             # create new nifti
                             ref = nib.load(ax_file_nnunet)
-                            mask = nib.Nifti1Image(data, ref.affine, ref.header)
+                            mask = nib.Nifti1Image(data.astype(int), ref.affine, ref.header)
 
                             seg_file_nnunet = os.path.join(path_out_labelsTr,f'{args.taskname}_{scan_cnt_train:04d}.nii.gz')
                             nib.save(mask, seg_file_nnunet)
