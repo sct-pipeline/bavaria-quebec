@@ -194,7 +194,7 @@ if __name__ == '__main__':
 
                         scan_cnt_train+= 1
                         # create the new convention names
-                        ax_file_nnunet = os.path.join(path_out_imagesTr,f'{args.taskname}_{scan_cnt_train:03d}_0000.nii.gz')
+                        ax_file_nnunet = os.path.join(path_out_imagesTr,f'{args.taskname}_{scan_cnt_train:04d}_0000.nii.gz')
                         train_image_ax.append(str(ax_file_nnunet))
 
                         # create a system link (instead of copying)
@@ -202,12 +202,12 @@ if __name__ == '__main__':
                         conversion_dict[str(os.path.abspath(ax_file))] = ax_file_nnunet
 
                         if args.use_sag_channel:
-                            sag_file_nnunet = os.path.join(path_out_imagesTr,f'{args.taskname}_{scan_cnt_train:03d}_0001.nii.gz')
+                            sag_file_nnunet = os.path.join(path_out_imagesTr,f'{args.taskname}_{scan_cnt_train:04d}_0001.nii.gz')
                             train_image_sag.append(str(sag_file_nnunet))
                             os.symlink(os.path.abspath(sag_file), sag_file_nnunet)
                             conversion_dict[str(os.path.abspath(sag_file))] = sag_file_nnunet
 
-                        seg_file_nnunet = os.path.join(path_out_labelsTr,f'{args.taskname}_{scan_cnt_train:03d}.nii.gz')
+                        seg_file_nnunet = os.path.join(path_out_labelsTr,f'{args.taskname}_{scan_cnt_train:04d}.nii.gz')
                         
                         # segmentation files
                         if not args.use_region_based:
@@ -243,7 +243,7 @@ if __name__ == '__main__':
                             ref = nib.load(ax_file_nnunet)
                             mask = nib.Nifti1Image(data, ref.affine, ref.header)
 
-                            seg_file_nnunet = os.path.join(path_out_labelsTr,f'{args.taskname}_{scan_cnt_train:03d}.nii.gz')
+                            seg_file_nnunet = os.path.join(path_out_labelsTr,f'{args.taskname}_{scan_cnt_train:04d}.nii.gz')
                             nib.save(mask, seg_file_nnunet)
 
                         train_image_labels.append(str(seg_file_nnunet))
@@ -253,7 +253,7 @@ if __name__ == '__main__':
 
                         scan_cnt_test+= 1
                         # create the new convention names
-                        ax_file_nnunet = os.path.join(path_out_imagesTs,f'{args.taskname}_{scan_cnt_test:03d}_0000.nii.gz')
+                        ax_file_nnunet = os.path.join(path_out_imagesTs,f'{args.taskname}_{scan_cnt_test:04d}_0000.nii.gz')
                         test_image_ax.append(str(ax_file_nnunet))
 
                         # create a system link (instead of copying)
@@ -261,13 +261,13 @@ if __name__ == '__main__':
                         conversion_dict[str(os.path.abspath(ax_file))] = ax_file_nnunet
 
                         if args.use_sag_channel:
-                            sag_file_nnunet = os.path.join(path_out_imagesTs,f'{args.taskname}_{scan_cnt_test:03d}_0001.nii.gz')
+                            sag_file_nnunet = os.path.join(path_out_imagesTs,f'{args.taskname}_{scan_cnt_test:04d}_0001.nii.gz')
                             test_image_sag.append(str(sag_file_nnunet))
                             os.symlink(os.path.abspath(sag_file), sag_file_nnunet)
                             conversion_dict[str(os.path.abspath(sag_file))] = sag_file_nnunet
 
                         # segmentation files
-                        seg_file_nnunet = os.path.join(path_out_labelsTs,f'{args.taskname}_{scan_cnt_test:03d}.nii.gz')
+                        seg_file_nnunet = os.path.join(path_out_labelsTs,f'{args.taskname}_{scan_cnt_test:04d}.nii.gz')
 
                         if not args.use_region_based:
 
@@ -302,7 +302,7 @@ if __name__ == '__main__':
                             ref = nib.load(ax_file_nnunet)
                             mask = nib.Nifti1Image(data, ref.affine, ref.header)
 
-                            seg_file_nnunet = os.path.join(path_out_labelsTs,f'{args.taskname}_{scan_cnt_test:03d}.nii.gz')
+                            seg_file_nnunet = os.path.join(path_out_labelsTs,f'{args.taskname}_{scan_cnt_test:04d}.nii.gz')
                             nib.save(mask, seg_file_nnunet)
 
                         test_image_labels.append(str(seg_file_nnunet))
